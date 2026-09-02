@@ -9,8 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class MoneyFlowApplication {
 
     public static void main(String[] args) {
-        log.info(String.valueOf(Math.PI));
-//        SpringApplication.run(MoneyFlowApplication.class, args);
+        SpringApplication.run(MoneyFlowApplication.class, args);
     }
 
 }
