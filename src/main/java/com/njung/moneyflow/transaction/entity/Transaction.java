@@ -56,7 +56,7 @@ public class Transaction {
         validateMemo(memo);
         validatePlace(place);
         validateCategory(category);
-        validateType(this.type, category);
+        validateType(type, category);
         validateAmount(amount);
 
 
@@ -90,12 +90,17 @@ public class Transaction {
     }
 
 
-    public void change(Money amount, LocalDate transactionDate, Category category, String memo, String place) {
+    public void change(Money amount,
+                       LocalDate transactionDate,
+                       Category category,
+                       String memo,
+                       String place) {
         validateMemo(memo);
         validatePlace(place);
         validateCategory(category);
         validateAmount(amount);
-        validateType(type, category);
+        validateType(this.type, category);
+
 
         if (this.deletedAt != null) {
             throw new IllegalStateException("삭제된 거래는 수정이 불가능 합니다.");
