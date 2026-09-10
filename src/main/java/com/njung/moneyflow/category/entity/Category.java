@@ -49,11 +49,11 @@ public class Category {
     private LocalDateTime deletedAt;
 
     public Category(
-            String name,
-            TransactionType type,
-            CategoryType categoryType,
-            Category parentCategory
-    ) {
+        String name,
+        TransactionType type,
+        CategoryType categoryType,
+        Category parentCategory
+                   ) {
         if (type == null) {
             throw new IllegalArgumentException("거래 구분은 필수입니다.");
         }
@@ -72,6 +72,7 @@ public class Category {
         this.active = true;
     }
 
+
     @PrePersist
     protected void onCreate() {
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
@@ -86,15 +87,8 @@ public class Category {
     }
 
     public void rename(String name) {
-        if (this.categoryType == CategoryType.SYSTEM) {
-            throw new IllegalStateException("기본 제공 카테고리는 수정할 수 없습니다.");
-        }
-
-        if (this.deletedAt != null) {
-            throw new IllegalStateException("삭제된 카테고리는 수정할 수 없습니다.");
-        }
-
         validateName(name);
+        validateModifiable();
 
         this.name = name;
     }
@@ -128,6 +122,18 @@ public class Category {
         this.deletedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
     }
 
+    public void changeParentCategory(Category category) {
+        if (this == category) {
+            throw new IllegalArgumentException("자기 자신을 부모 카테고리로 지정할 수 없습니다.");
+        }
+
+        validateParentCategory(category, this.type);
+        validateModifiable();
+
+        this.parentCategory = category;
+    }
+
+
     private void validateName(String name) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("카테고리명은 필수입니다.");
@@ -139,9 +145,9 @@ public class Category {
     }
 
     private void validateParentCategory(
-            Category parentCategory,
-            TransactionType type
-    ) {
+        Category parentCategory,
+        TransactionType type
+                                       ) {
         if (parentCategory == null) {
             return;
         }
@@ -160,8 +166,18 @@ public class Category {
 
         if (parentCategory.type != type) {
             throw new IllegalArgumentException(
-                    "부모와 자식 카테고리의 거래 구분이 일치하지 않습니다."
+                "부모와 자식 카테고리의 거래 구분이 일치하지 않습니다."
             );
+        }
+    }
+
+    private void validateModifiable() {
+        if (this.categoryType == CategoryType.SYSTEM) {
+            throw new IllegalStateException("기본 제공 카테고리는 변경이 불가능합니다.");
+        }
+
+        if (this.deletedAt != null) {
+            throw new IllegalStateException("삭제된 카테고리는 수정할 수 없습니다.");
         }
     }
 }

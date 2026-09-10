@@ -56,7 +56,7 @@ public class Transaction {
         validateMemo(memo);
         validatePlace(place);
         validateCategory(category);
-        validateType(type, category);
+        validateTypeMatch(type, category);
         validateAmount(amount);
 
 
@@ -95,16 +95,15 @@ public class Transaction {
                        Category category,
                        String memo,
                        String place) {
+        if (this.deletedAt != null) {
+            throw new IllegalStateException("삭제된 거래는 수정이 불가능 합니다.");
+        }
+
         validateMemo(memo);
         validatePlace(place);
         validateCategory(category);
         validateAmount(amount);
-        validateType(this.type, category);
-
-
-        if (this.deletedAt != null) {
-            throw new IllegalStateException("삭제된 거래는 수정이 불가능 합니다.");
-        }
+        validateTypeMatch(this.type, category);
 
         this.amount = amount;
         this.transactionDate = transactionDate == null ? this.transactionDate : transactionDate;
@@ -113,7 +112,7 @@ public class Transaction {
         this.place = place;
     }
 
-    private void validateType(TransactionType type, Category category) {
+    private void validateTypeMatch(TransactionType type, Category category) {
         if (type == null) {
             throw new IllegalArgumentException("입출금 값은 필수입니다.");
         }
