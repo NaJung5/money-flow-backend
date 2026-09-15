@@ -69,7 +69,7 @@ class TransactionTest {
     @Test
     @DisplayName("금액이 없으면 거래 생성 실패")
     void failWhenAmountIsNull() {
-        Category category = CategoryFixture.createExpenseCategory();
+        Category category = CategoryFixture.createExpenseCategory("SampleCategory");
         LocalDate transactionDate = LocalDate.now();
 
         assertThatThrownBy(() -> new Transaction(
@@ -102,7 +102,7 @@ class TransactionTest {
     @DisplayName("삭제된 거래는 수정할 수 없음")
     void failWhenChangingDeletedTransaction() {
         Transaction transaction = TransactionFixture.createTransaction();
-        Category category = CategoryFixture.createExpenseCategory();
+        Category category = CategoryFixture.createExpenseCategory("SampleCategory");
         Money amount = MoneyFixture.createMoney();
         transaction.delete();
 
@@ -148,7 +148,7 @@ class TransactionTest {
     @Test
     @DisplayName("비활성 카테고리로 거래 생성 시 실패")
     void failWhenCategoryIsInactive() {
-        Category category = CategoryFixture.createExpenseCategory();
+        Category category = CategoryFixture.createExpenseCategory("SampleCategory");
         Money amount = MoneyFixture.createMoney();
         LocalDate transactionDate = LocalDate.now();
 

@@ -6,9 +6,9 @@ import com.njung.moneyflow.transaction.entity.TransactionType;
 
 public class CategoryFixture {
 
-    public static Category createExpenseCategory() {
+    public static Category createExpenseCategory(String categoryName) {
         return new Category(
-            "SampleCategory",
+            categoryName,
             TransactionType.EXPENSE,
             CategoryType.CUSTOM,
             null

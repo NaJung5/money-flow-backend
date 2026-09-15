@@ -13,7 +13,7 @@ public class TransactionFixture {
             TransactionType.EXPENSE,
             MoneyFixture.createMoney(),
             LocalDate.now(ZoneId.of("Asia/Seoul")),
-            CategoryFixture.createExpenseCategory(),
+            CategoryFixture.createExpenseCategory("SampleCategory"),
             "점심",
             "식당"
         );
