@@ -13,7 +13,7 @@ class CategoryTest {
     @Test
     @DisplayName("카테고리 정상 생성")
     void createCategory() {
-        Category category = CategoryFixture.createExpenseCategory();
+        Category category = CategoryFixture.createExpenseCategory("SampleCategory");
 
         assertThat(category.getName()).isEqualTo("SampleCategory");
         assertThat(category.getType()).isEqualTo(TransactionType.EXPENSE);
@@ -43,7 +43,7 @@ class CategoryTest {
     @Test
     @DisplayName("카테고리명 변경 정상 동작")
     void changeCategoryName() {
-        Category category = CategoryFixture.createExpenseCategory();
+        Category category = CategoryFixture.createExpenseCategory("SampleCategory");
         category.rename("카테고리명 변경");
 
         assertThat(category.getName()).isEqualTo("카테고리명 변경");
@@ -53,7 +53,7 @@ class CategoryTest {
     @Test
     @DisplayName("자기 자신을 부모로 설정하면 실패")
     void failWhenCategorySetsItselfAsParent() {
-        Category category = CategoryFixture.createExpenseCategory();
+        Category category = CategoryFixture.createExpenseCategory("SampleCategory");
 
         assertThatThrownBy(() -> category.changeParentCategory(category)).isInstanceOf(
             IllegalArgumentException.class);
@@ -62,7 +62,7 @@ class CategoryTest {
     @Test
     @DisplayName("자식과 부모의 거래 타입이 다르면 실패")
     void failWhenCategoryTypeNotMatch() {
-        Category parentCategory = CategoryFixture.createExpenseCategory();
+        Category parentCategory = CategoryFixture.createExpenseCategory("SampleCategory");
 
         assertThatThrownBy(() -> new Category(
             "자식 카테고리",
@@ -90,7 +90,7 @@ class CategoryTest {
     @Test
     @DisplayName("삭제된 카테고리는 부모 카테고리로 사용 불가능")
     void failWhenDeletedCategory() {
-        Category category = CategoryFixture.createExpenseCategory();
+        Category category = CategoryFixture.createExpenseCategory("SampleCategory");
         category.requestDelete();
 
         assertThatThrownBy(() -> new Category(
