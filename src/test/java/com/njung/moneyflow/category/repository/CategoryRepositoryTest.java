@@ -2,6 +2,7 @@ package com.njung.moneyflow.category.repository;
 
 import com.njung.moneyflow.category.entity.Category;
 import com.njung.moneyflow.fixture.CategoryFixture;
+import com.njung.moneyflow.transaction.entity.TransactionType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,15 +29,15 @@ class CategoryRepositoryTest {
         assertThat(categoryRepository.existsByNameAndType(
             category.getName(),
             category.getType()
-                                                         )).isTrue();
+        )).isTrue();
     }
 
     @Test
     @DisplayName("관리용 조회는 비활성 카테고리를 포함하고 삭제된 카테고리는 제외한다")
     void findAllByDeletedAtIsNull() {
-        Category activeCategory = CategoryFixture.createExpenseCategory("SampleCategory");
-        Category inactiveCategory = CategoryFixture.createExpenseCategory("SampleCategory");
-        Category deletedCategory = CategoryFixture.createExpenseCategory("SampleCategory");
+        Category activeCategory = CategoryFixture.createExpenseCategory("ActiveCategory");
+        Category inactiveCategory = CategoryFixture.createExpenseCategory("InactiveCategory");
+        Category deletedCategory = CategoryFixture.createExpenseCategory("DeletedCategory");
 
 
         inactiveCategory.deactivate();
@@ -47,8 +48,50 @@ class CategoryRepositoryTest {
         List<Category> actual = categoryRepository.findAllByDeletedAtIsNull();
 
         assertThat(actual).containsExactlyInAnyOrderElementsOf(expected);
-
     }
 
+    @Test
+    @DisplayName("등록용 조회는 활성 상태이며 삭제되지 않은 카테고리만 반환한다")
+    void findAllByActiveTrueAndDeletedAtIsNull() {
+        Category activeCategory = CategoryFixture.createExpenseCategory("ActiveCategory");
+        Category inactiveCategory = CategoryFixture.createExpenseCategory("InactiveCategory");
+        Category deletedCategory = CategoryFixture.createExpenseCategory("DeletedCategory");
 
+
+        inactiveCategory.deactivate();
+        deletedCategory.requestDelete();
+        categoryRepository.saveAll(List.of(activeCategory, inactiveCategory, deletedCategory));
+
+        List<Category> actual = categoryRepository.findAllByActiveTrueAndDeletedAtIsNull();
+
+        assertThat(actual).containsExactly(activeCategory);
+    }
+
+    @Test
+    @DisplayName("이름이 다르면 false를 반환한다")
+    void returnFalseWhenNameIsDifferent() {
+        Category category = CategoryFixture.createExpenseCategory("SampleCategory");
+        categoryRepository.save(category);
+
+        boolean result = categoryRepository.existsByNameAndType(
+            "DifferentCategory",
+            category.getType()
+        );
+
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @DisplayName("거래 유형이 다르면 false를 반환한다")
+    void returnFalseWhenTypeIsDifferent() {
+        Category category = CategoryFixture.createExpenseCategory("SampleCategory");
+        categoryRepository.save(category);
+
+        boolean result = categoryRepository.existsByNameAndType(
+            category.getName(),
+            TransactionType.INCOME
+        );
+
+        assertThat(result).isFalse();
+    }
 }

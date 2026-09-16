@@ -13,4 +13,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     boolean existsByNameAndType(String name, TransactionType type);
 
     List<Category> findAllByDeletedAtIsNull();
+
+    List<Category> findAllByActiveTrueAndDeletedAtIsNull();
 }
