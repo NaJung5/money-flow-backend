@@ -1,11 +1,8 @@
 package com.njung.moneyflow.transaction.repository;
 
-import org.junit.jupiter.api.Test;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 
+@DataJpaTest
 class TransactionRepositoryTest {
 
-    @Test
-    void existsByNameAndType() {
-
-    }
 }

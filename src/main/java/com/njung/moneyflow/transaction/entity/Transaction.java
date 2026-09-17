@@ -139,6 +139,12 @@ public class Transaction {
             throw new IllegalArgumentException("카테고리는 필수입니다.");
         }
 
+
+        if (category.getDeletedAt() != null) {
+            throw new IllegalStateException("삭제된 카테고리는 사용할 수 없습니다.");
+        }
+
+
         if (!category.isActive()) {
             throw new IllegalStateException("비활성화된 카테고리는 사용이 불가능 합니다.");
         }
