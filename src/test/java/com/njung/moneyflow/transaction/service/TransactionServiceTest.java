@@ -3,6 +3,7 @@ package com.njung.moneyflow.transaction.service;
 import com.njung.moneyflow.category.entity.Category;
 import com.njung.moneyflow.category.repository.CategoryRepository;
 import com.njung.moneyflow.fixture.CategoryFixture;
+import com.njung.moneyflow.global.exception.BusinessException;
 import com.njung.moneyflow.transaction.dto.TransactionRequest;
 import com.njung.moneyflow.transaction.entity.Transaction;
 import com.njung.moneyflow.transaction.entity.TransactionType;
@@ -15,7 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -94,6 +94,7 @@ class TransactionServiceTest {
         );
 
         assertThatThrownBy(() -> transactionService.create(request))
-            .isInstanceOf(NoSuchElementException.class);
+            .isInstanceOf(BusinessException.class)
+            .hasMessage("카테고리를 찾을 수 없습니다. categoryId=2139124");
     }
 }

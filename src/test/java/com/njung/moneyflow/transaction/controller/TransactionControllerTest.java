@@ -1,5 +1,7 @@
 package com.njung.moneyflow.transaction.controller;
 
+import com.njung.moneyflow.global.exception.BusinessException;
+import com.njung.moneyflow.global.exception.ErrorCode;
 import com.njung.moneyflow.transaction.dto.TransactionRequest;
 import com.njung.moneyflow.transaction.service.TransactionService;
 import org.junit.jupiter.api.DisplayName;
@@ -72,5 +74,33 @@ class TransactionControllerTest {
             .andExpect(status().isBadRequest());
 
         verifyNoInteractions(transactionService);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 카테고리로 거래 등록 시 404를 반환한다")
+    void failWhenCategoryDoesNotExist() throws Exception {
+        when(transactionService.create(any(TransactionRequest.class)))
+            .thenThrow(new BusinessException(ErrorCode.CATEGORY_NOT_FOUND, "999"));
+
+        String requestBody = """
+            {
+              "type": "EXPENSE",
+              "amount": 10000,
+              "transactionDate": "2026-09-17",
+              "categoryId": 999,
+              "memo": "거래등록 테스트",
+              "place": "부평"
+            }
+            """;
+
+        mockMvc.perform(post("/api/transactions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.message")
+                .value("카테고리를 찾을 수 없습니다. categoryId=999"));
+
+        verify(transactionService)
+            .create(any(TransactionRequest.class));
     }
 }
