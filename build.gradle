@@ -2,8 +2,9 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '4.1.1'
     id 'io.spring.dependency-management' version '1.1.7'
-//    TODO: JAVA25와 호환성 문제가 있어 추후 다시 수정예정
-//    id 'com.diffplug.spotless' version '7.0.2'
+
+    // TODO: Java 25 호환성 확인 후 다시 적용
+    // id 'com.diffplug.spotless' version '7.0.2'
 }
 
 group = 'com.njung'
@@ -20,34 +21,48 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    mockitoAgent
+}
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
 
     compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
     annotationProcessor 'org.projectlombok:lombok'
+
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+
     testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testRuntimeOnly 'com.h2database:h2'
-    testAnnotationProcessor 'org.projectlombok:lombok'
-}
-//      TODO: JAVA25와 호환성 문제가 있어 추후 다시 수정예정
 
-//spotless {
-//    java {
-//        googleJavaFormat()
-//        removeUnusedImports()
-//        trimTrailingWhitespace()
-//        endWithNewline()
-//    }
-//}
+    mockitoAgent('org.mockito:mockito-core') {
+        transitive = false
+    }
+}
+
+// TODO: Java 25 호환성 확인 후 다시 적용
+// spotless {
+//     java {
+//         googleJavaFormat()
+//         removeUnusedImports()
+//         trimTrailingWhitespace()
+//         endWithNewline()
+//     }
+// }
 
 tasks.named('test') {
     useJUnitPlatform()
+    jvmArgs "-javaagent:${configurations.mockitoAgent.asPath}"
 }
