@@ -1,6 +1,8 @@
 package com.njung.moneyflow.transaction.entity;
 
 import com.njung.moneyflow.category.entity.Category;
+import com.njung.moneyflow.global.exception.BusinessException;
+import com.njung.moneyflow.global.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -141,7 +143,7 @@ public class Transaction {
 
 
         if (category.getDeletedAt() != null) {
-            throw new IllegalStateException("삭제된 카테고리는 사용할 수 없습니다.");
+            throw new BusinessException(ErrorCode.CATEGORY_DELETED);
         }
 
 

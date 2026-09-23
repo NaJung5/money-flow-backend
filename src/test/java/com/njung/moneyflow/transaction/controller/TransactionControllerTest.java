@@ -103,4 +103,32 @@ class TransactionControllerTest {
         verify(transactionService)
             .create(any(TransactionRequest.class));
     }
+
+    @Test
+    @DisplayName("삭제 된 카테고리는 400을 반환한다.")
+    void failWhenCategory() throws Exception {
+        when(transactionService.create(any(TransactionRequest.class)))
+            .thenThrow(new BusinessException(ErrorCode.CATEGORY_DELETED));
+
+        String requestBody = """
+            {
+              "type": "EXPENSE",
+              "amount": 10000,
+              "transactionDate": "2026-09-17",
+              "categoryId": 999,
+              "memo": "거래등록 테스트",
+              "place": "부평"
+            }
+            """;
+
+        mockMvc.perform(post("/api/transactions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.message")
+                .value("카테고리를 찾을 수 없습니다. categoryId=999"));
+
+        verify(transactionService)
+            .create(any(TransactionRequest.class));
+    }
 }
