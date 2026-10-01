@@ -18,6 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(CategoryController.class)
 class CategoryControllerTest {
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -26,6 +27,7 @@ class CategoryControllerTest {
 
     @Test
     void createCategory() throws Exception {
+        // given
         when(categoryService.create(any(CategoryRequest.class))).thenReturn(1L);
 
         String requestBody = """
@@ -36,13 +38,14 @@ class CategoryControllerTest {
             }
             """;
 
-        mockMvc.perform(post("/api/category")
+        // when & then
+        mockMvc
+            .perform(post("/api/category")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.categoryId").value(1L));
 
-        verify(categoryService)
-            .create(any(CategoryRequest.class));
+        verify(categoryService).create(any(CategoryRequest.class));
     }
 }

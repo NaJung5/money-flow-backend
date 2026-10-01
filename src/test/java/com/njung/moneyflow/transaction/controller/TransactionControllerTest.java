@@ -30,8 +30,8 @@ class TransactionControllerTest {
     @Test
     @DisplayName("거래 등록 요청이 정상적이면 201과 거래 ID를 반환한다")
     void createTransaction() throws Exception {
-        when(transactionService.create(any(TransactionRequest.class)))
-            .thenReturn(1L);
+        // given
+        when(transactionService.create(any(TransactionRequest.class))).thenReturn(1L);
 
         String requestBody = """
             {
@@ -44,19 +44,21 @@ class TransactionControllerTest {
             }
             """;
 
-        mockMvc.perform(post("/api/transactions")
+        // when & then
+        mockMvc
+            .perform(post("/api/transactions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.transactionId").value(1L));
 
-        verify(transactionService)
-            .create(any(TransactionRequest.class));
+        verify(transactionService).create(any(TransactionRequest.class));
     }
 
     @Test
     @DisplayName("거래 금액이 0이면 400을 반환하고 서비스를 호출하지 않는다")
     void failWhenAmountIsZero() throws Exception {
+        // given
         String requestBody = """
             {
               "type": "EXPENSE",
@@ -68,7 +70,9 @@ class TransactionControllerTest {
             }
             """;
 
-        mockMvc.perform(post("/api/transactions")
+        // when & then
+        mockMvc
+            .perform(post("/api/transactions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
             .andExpect(status().isBadRequest());
@@ -79,8 +83,10 @@ class TransactionControllerTest {
     @Test
     @DisplayName("존재하지 않는 카테고리로 거래 등록 시 404를 반환한다")
     void failWhenCategoryDoesNotExist() throws Exception {
-        when(transactionService.create(any(TransactionRequest.class)))
-            .thenThrow(new BusinessException(ErrorCode.CATEGORY_NOT_FOUND, "categoryId=999"));
+        // given
+        when(transactionService.create(any(TransactionRequest.class))).thenThrow(new BusinessException(ErrorCode.CATEGORY_NOT_FOUND,
+            "categoryId=999"
+        ));
 
         String requestBody = """
             {
@@ -93,22 +99,24 @@ class TransactionControllerTest {
             }
             """;
 
-        mockMvc.perform(post("/api/transactions")
+        // when & then
+        mockMvc
+            .perform(post("/api/transactions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
             .andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.message")
-                .value("카테고리를 찾을 수 없습니다. categoryId=999"));
+            .andExpect(jsonPath("$.message").value("카테고리를 찾을 수 없습니다. categoryId=999"));
 
-        verify(transactionService)
-            .create(any(TransactionRequest.class));
+        verify(transactionService).create(any(TransactionRequest.class));
     }
 
     @Test
-    @DisplayName("삭제 된 카테고리는 400을 반환한다.")
-    void failWhenCategory() throws Exception {
-        when(transactionService.create(any(TransactionRequest.class)))
-            .thenThrow(new BusinessException(ErrorCode.CATEGORY_DELETED, "categoryId=999"));
+    @DisplayName("삭제된 카테고리로 거래 등록 시 404를 반환한다")
+    void failWhenCategoryIsDeleted() throws Exception {
+        // given
+        when(transactionService.create(any(TransactionRequest.class))).thenThrow(new BusinessException(ErrorCode.CATEGORY_DELETED,
+            "categoryId=999"
+        ));
 
         String requestBody = """
             {
@@ -121,14 +129,14 @@ class TransactionControllerTest {
             }
             """;
 
-        mockMvc.perform(post("/api/transactions")
+        // when & then
+        mockMvc
+            .perform(post("/api/transactions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
             .andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.message")
-                .value("삭제된 카테고리는 사용할 수 없습니다. categoryId=999"));
+            .andExpect(jsonPath("$.message").value("삭제된 카테고리는 사용할 수 없습니다. categoryId=999"));
 
-        verify(transactionService)
-            .create(any(TransactionRequest.class));
+        verify(transactionService).create(any(TransactionRequest.class));
     }
 }

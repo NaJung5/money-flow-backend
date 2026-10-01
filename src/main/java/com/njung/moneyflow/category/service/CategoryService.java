@@ -44,9 +44,10 @@ public class CategoryService {
             parent
         );
         // 4. save
-        categoryRepository.save(category);
+        Category savedCategory = categoryRepository.save(category);
+
         // 5. id 반환
 
-        return category.getId();
+        return savedCategory.getId();
     }
 }

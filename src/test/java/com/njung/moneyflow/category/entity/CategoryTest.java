@@ -13,21 +13,24 @@ class CategoryTest {
     @Test
     @DisplayName("카테고리 정상 생성")
     void createCategory() {
+        // given & when
         Category category = CategoryFixture.createExpenseCategory("SampleCategory");
 
+        // then
         assertThat(category.getName()).isEqualTo("SampleCategory");
         assertThat(category.getType()).isEqualTo(TransactionType.EXPENSE);
         assertThat(category.getCategoryType()).isEqualTo(CategoryType.CUSTOM);
         assertThat(category.isActive()).isTrue();
         assertThat(category.getParentCategory()).isNull();
-
     }
 
     @Test
     @DisplayName("자식 카테고리 정상 생성")
     void createChildCategory() {
+        // given & when
         Category childCategory = createSampleChildCategory();
 
+        // then
         assertThat(childCategory.getName()).isEqualTo("자식 카테고리");
         assertThat(childCategory.getType()).isEqualTo(TransactionType.EXPENSE);
         assertThat(childCategory.getCategoryType()).isEqualTo(CategoryType.CUSTOM);
@@ -43,18 +46,23 @@ class CategoryTest {
     @Test
     @DisplayName("카테고리명 변경 정상 동작")
     void changeCategoryName() {
+        // given
         Category category = CategoryFixture.createExpenseCategory("SampleCategory");
+
+        // when
         category.rename("카테고리명 변경");
 
+        // then
         assertThat(category.getName()).isEqualTo("카테고리명 변경");
     }
-
 
     @Test
     @DisplayName("자기 자신을 부모로 설정하면 실패")
     void failWhenCategorySetsItselfAsParent() {
+        // given
         Category category = CategoryFixture.createExpenseCategory("SampleCategory");
 
+        // when & then
         assertThatThrownBy(() -> category.changeParentCategory(category)).isInstanceOf(
             IllegalArgumentException.class);
     }
@@ -62,8 +70,10 @@ class CategoryTest {
     @Test
     @DisplayName("자식과 부모의 거래 타입이 다르면 실패")
     void failWhenCategoryTypeNotMatch() {
+        // given
         Category parentCategory = CategoryFixture.createExpenseCategory("SampleCategory");
 
+        // when & then
         assertThatThrownBy(() -> new Category(
             "자식 카테고리",
             TransactionType.INCOME,
@@ -75,8 +85,10 @@ class CategoryTest {
     @Test
     @DisplayName("카테고리는 3뎁스까지 만들 수 없음")
     void failWhenCreatingThirdDepthCategory() {
+        // given
         Category childCategory = createSampleChildCategory();
 
+        // when & then
         assertThatThrownBy(() -> new Category(
             "자식카테고리2",
             TransactionType.EXPENSE,
@@ -90,9 +102,12 @@ class CategoryTest {
     @Test
     @DisplayName("삭제된 카테고리는 부모 카테고리로 사용 불가능")
     void failWhenDeletedCategory() {
+        // given
         Category category = CategoryFixture.createExpenseCategory("SampleCategory");
+
         category.requestDelete();
 
+        // when & then
         assertThatThrownBy(() -> new Category(
             "자식 카테고리",
             TransactionType.EXPENSE,
@@ -104,6 +119,7 @@ class CategoryTest {
     @Test
     @DisplayName("기본제공 카테고리명은 수정이 불가능 합니다.")
     void failWhenSystemCategoryChange() {
+        // given
         Category category = new Category(
             "기본제공 카테고리",
             TransactionType.INCOME,
@@ -111,10 +127,9 @@ class CategoryTest {
             null
         );
 
+        // when & then
         assertThatThrownBy(() -> category.rename("카테고리명 변경")).isInstanceOf(IllegalStateException.class);
-
     }
-
 
     private Category createSampleChildCategory() {
         Category parentCategory = new Category(
@@ -131,5 +146,4 @@ class CategoryTest {
             parentCategory
         );
     }
-
 }
