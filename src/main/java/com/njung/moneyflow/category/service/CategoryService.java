@@ -18,36 +18,55 @@ public class CategoryService {
 
     @Transactional
     public Long create(CategoryRequest request) {
-        Category parent = null;
-        // 1. 중복 검증
-        boolean exists = categoryRepository.existsByNameAndType(request.name(), request.type());
-        if (exists) {
-            throw new BusinessException(
-                ErrorCode.CATEGORY_ALREADY_EXISTS,
-                "name=" + request.name() + ", type=" + request.type()
-            );
-        }
-        // 2. parentId가 있으면 부모 조회
-        if (request.parentId() != null) {
-            parent = categoryRepository
-                .findById(request.parentId())
-                .orElseThrow(() -> new BusinessException(
-                    ErrorCode.CATEGORY_NOT_FOUND,
-                    "parentId=" + request.parentId()
-                ));
-        }
-        // 3. Category 생성
+        Category parent = findParent(request.parentId());
+
+        validateDuplicate(request, parent);
+
         Category category = new Category(
             request.name(),
             request.type(),
             CategoryType.CUSTOM,
             parent
         );
-        // 4. save
-        Category savedCategory = categoryRepository.save(category);
 
-        // 5. id 반환
-
-        return savedCategory.getId();
+        return categoryRepository.save(category).getId();
     }
+
+    private Category findParent(Long parentId) {
+        if (parentId == null) {
+            return null;
+        }
+
+        return categoryRepository
+            .findById(parentId)
+            .orElseThrow(() -> new BusinessException(
+                ErrorCode.CATEGORY_NOT_FOUND,
+                "parentId=" + parentId
+            ));
+    }
+
+    private void validateDuplicate(CategoryRequest request, Category parent) {
+        boolean exists;
+
+        if (parent == null) {
+            exists = categoryRepository.existsByNameAndTypeAndParentCategoryIsNull(
+                request.name(),
+                request.type()
+            );
+        } else {
+            exists = categoryRepository.existsByNameAndTypeAndParentCategoryId(
+                request.name(),
+                request.type(),
+                parent.getId()
+            );
+        }
+
+        if (exists) {
+            throw new BusinessException(
+                ErrorCode.CATEGORY_ALREADY_EXISTS,
+                "name=" + request.name() + ", type=" + request.type()
+            );
+        }
+    }
+
 }

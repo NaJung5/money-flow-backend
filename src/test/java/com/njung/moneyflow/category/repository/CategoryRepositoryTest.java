@@ -27,7 +27,7 @@ class CategoryRepositoryTest {
         categoryRepository.save(category);
 
         // when
-        boolean result = categoryRepository.existsByNameAndType(
+        boolean result = categoryRepository.existsByNameAndTypeAndParentCategoryIsNull(
             category.getName(),
             category.getType()
         );
@@ -91,7 +91,7 @@ class CategoryRepositoryTest {
         categoryRepository.save(category);
 
         // when
-        boolean result = categoryRepository.existsByNameAndType(
+        boolean result = categoryRepository.existsByNameAndTypeAndParentCategoryIsNull(
             "DifferentCategory",
             category.getType()
         );
@@ -109,7 +109,7 @@ class CategoryRepositoryTest {
         categoryRepository.save(category);
 
         // when
-        boolean result = categoryRepository.existsByNameAndType(
+        boolean result = categoryRepository.existsByNameAndTypeAndParentCategoryIsNull(
             category.getName(),
             TransactionType.INCOME
         );

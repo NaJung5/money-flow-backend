@@ -66,4 +66,25 @@ class CategoryServiceTest {
         assertThatThrownBy(() -> categoryService.create(request))
             .isInstanceOf(BusinessException.class);
     }
+
+    @Test
+    @DisplayName("같은 부모 아래 동일한 이름과 거래 유형의 카테고리를 생성하면 실패한다")
+    void failWhenDuplicateChildCategoryExists() {
+        // given
+        Category parent =
+            CategoryFixture.createExpenseCategory("부모 카테고리");
+        categoryRepository.save(parent);
+
+        CategoryRequest request = new CategoryRequest(
+            "자식 카테고리",
+            TransactionType.EXPENSE,
+            parent.getId()
+        );
+
+        categoryService.create(request);
+
+        // when & then
+        assertThatThrownBy(() -> categoryService.create(request))
+            .isInstanceOf(BusinessException.class);
+    }
 }
