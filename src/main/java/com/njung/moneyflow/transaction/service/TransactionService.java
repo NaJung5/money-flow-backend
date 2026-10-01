@@ -2,6 +2,8 @@ package com.njung.moneyflow.transaction.service;
 
 import com.njung.moneyflow.category.entity.Category;
 import com.njung.moneyflow.category.repository.CategoryRepository;
+import com.njung.moneyflow.global.exception.BusinessException;
+import com.njung.moneyflow.global.exception.ErrorCode;
 import com.njung.moneyflow.transaction.dto.TransactionRequest;
 import com.njung.moneyflow.transaction.entity.Money;
 import com.njung.moneyflow.transaction.entity.Transaction;
@@ -21,7 +23,10 @@ public class TransactionService {
     public Long create(TransactionRequest request) {
         Category category = categoryRepository
             .findById(request.categoryId())
-            .orElseThrow();
+            .orElseThrow(() -> new BusinessException(
+                ErrorCode.CATEGORY_NOT_FOUND,
+                "categoryId=" + request.categoryId()
+            ));
 
         Money money = new Money(request.amount());
 
