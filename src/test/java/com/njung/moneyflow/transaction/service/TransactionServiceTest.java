@@ -77,7 +77,7 @@ class TransactionServiceTest {
         );
 
         assertThatThrownBy(() -> transactionService.create(request))
-            .isInstanceOf(IllegalStateException.class)
+            .isInstanceOf(BusinessException.class)
             .hasMessage("삭제된 카테고리는 사용할 수 없습니다.");
     }
 
