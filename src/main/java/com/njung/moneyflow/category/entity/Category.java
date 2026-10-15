@@ -53,7 +53,7 @@ public class Category {
         TransactionType type,
         CategoryType categoryType,
         Category parentCategory
-                   ) {
+    ) {
         if (type == null) {
             throw new IllegalArgumentException("거래 구분은 필수입니다.");
         }
@@ -84,6 +84,10 @@ public class Category {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+    }
+
+    public void delete() {
+        this.deletedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
     }
 
     public void rename(String name) {
@@ -147,7 +151,7 @@ public class Category {
     private void validateParentCategory(
         Category parentCategory,
         TransactionType type
-                                       ) {
+    ) {
         if (parentCategory == null) {
             return;
         }

@@ -84,7 +84,8 @@ class TransactionControllerTest {
     @DisplayName("존재하지 않는 카테고리로 거래 등록 시 404를 반환한다")
     void failWhenCategoryDoesNotExist() throws Exception {
         // given
-        when(transactionService.create(any(TransactionRequest.class))).thenThrow(new BusinessException(ErrorCode.CATEGORY_NOT_FOUND,
+        when(transactionService.create(any(TransactionRequest.class))).thenThrow(new BusinessException(
+            ErrorCode.CATEGORY_NOT_FOUND,
             "categoryId=999"
         ));
 
@@ -114,7 +115,8 @@ class TransactionControllerTest {
     @DisplayName("삭제된 카테고리로 거래 등록 시 404를 반환한다")
     void failWhenCategoryIsDeleted() throws Exception {
         // given
-        when(transactionService.create(any(TransactionRequest.class))).thenThrow(new BusinessException(ErrorCode.CATEGORY_DELETED,
+        when(transactionService.create(any(TransactionRequest.class))).thenThrow(new BusinessException(
+            ErrorCode.CATEGORY_DELETED,
             "categoryId=999"
         ));
 
@@ -135,7 +137,7 @@ class TransactionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
             .andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.message").value("삭제된 카테고리는 사용할 수 없습니다. categoryId=999"));
+            .andExpect(jsonPath("$.message").value("이미 삭제된 카테고리입니다. categoryId=999"));
 
         verify(transactionService).create(any(TransactionRequest.class));
     }
