@@ -87,7 +87,7 @@ class TransactionServiceTest {
         // when & then
         assertThatThrownBy(() -> transactionService.create(request))
             .isInstanceOf(BusinessException.class)
-            .hasMessage("삭제된 카테고리는 사용할 수 없습니다.");
+            .hasMessage("이미 삭제된 카테고리입니다.");
     }
 
     @Test

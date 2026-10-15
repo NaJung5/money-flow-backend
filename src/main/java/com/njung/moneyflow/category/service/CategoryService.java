@@ -32,6 +32,33 @@ public class CategoryService {
         return categoryRepository.save(category).getId();
     }
 
+    @Transactional
+    public void delete(Long categoryId) {
+        Category category = categoryRepository
+            .findById(categoryId)
+            .orElseThrow(() -> new BusinessException(
+                ErrorCode.CATEGORY_NOT_FOUND,
+                "categoryID= " + categoryId
+            ));
+
+        if (category.getCategoryType() == CategoryType.SYSTEM) {
+            throw new BusinessException(ErrorCode.CATEGORY_SYSTEM_DELETE_NOT_ALLOWED);
+        }
+
+        if (category.getDeletedAt() != null) {
+            throw new BusinessException(ErrorCode.CATEGORY_DELETED);
+        }
+
+        boolean hasChildren = categoryRepository.existsByParentCategory_IdAndDeletedAtIsNull(
+            category.getId());
+
+        if (hasChildren) {
+            throw new BusinessException(ErrorCode.CATEGORY_HAS_CHILDREN);
+        }
+
+        category.delete();
+    }
+
     private Category findParent(Long parentId) {
         if (parentId == null) {
             return null;

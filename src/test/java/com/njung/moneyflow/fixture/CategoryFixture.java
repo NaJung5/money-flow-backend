@@ -14,4 +14,13 @@ public class CategoryFixture {
             null
         );
     }
+
+    public static Category createSystemCategory(String categoryName) {
+        return new Category(
+            categoryName,
+            TransactionType.EXPENSE,
+            CategoryType.SYSTEM,
+            null
+        );
+    }
 }

@@ -57,6 +57,19 @@ class CategoryTest {
     }
 
     @Test
+    @DisplayName("delete")
+    void shouldSoftDeleteCategory() {
+        // given
+        Category category = CategoryFixture.createExpenseCategory("SampleCategory");
+
+        // when
+        category.delete();
+
+        // then
+        assertThat(category.getDeletedAt()).isNotNull();
+    }
+
+    @Test
     @DisplayName("자기 자신을 부모로 설정하면 실패")
     void failWhenCategorySetsItselfAsParent() {
         // given
