@@ -1,14 +1,18 @@
 package com.njung.moneyflow.category.service;
 
 import com.njung.moneyflow.category.dto.CategoryRequest;
+import com.njung.moneyflow.category.dto.CategoryUpdateRequest;
 import com.njung.moneyflow.category.entity.Category;
 import com.njung.moneyflow.category.entity.CategoryType;
 import com.njung.moneyflow.category.repository.CategoryRepository;
 import com.njung.moneyflow.global.exception.BusinessException;
 import com.njung.moneyflow.global.exception.ErrorCode;
+import com.njung.moneyflow.transaction.entity.TransactionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +24,12 @@ public class CategoryService {
     public Long create(CategoryRequest request) {
         Category parent = findParent(request.parentId());
 
-        validateDuplicate(request, parent);
+        validateDuplicate(
+            request.name(),
+            request.type(),
+            parent != null ? parent.getId() : null,
+            null
+        );
 
         Category category = new Category(
             request.name(),
@@ -33,9 +42,34 @@ public class CategoryService {
     }
 
     @Transactional
+    public void update(Long categoryId, CategoryUpdateRequest request) {
+        Category category = categoryRepository.findById(categoryId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
+
+        if (category.getDeletedAt() != null) {
+            throw new BusinessException(ErrorCode.CATEGORY_DELETED);
+        }
+
+        if (Objects.equals(category.getName(), request.name())) {
+            return;
+        }
+
+        Category parent = category.getParentCategory();
+        Long parentId = parent != null ? parent.getId() : null;
+
+        validateDuplicate(
+            request.name(),
+            category.getType(),
+            parentId,
+            categoryId
+        );
+
+        category.rename(request.name());
+    }
+
+    @Transactional
     public void delete(Long categoryId) {
-        Category category = categoryRepository
-            .findById(categoryId)
+        Category category = categoryRepository.findById(categoryId)
             .orElseThrow(() -> new BusinessException(
                 ErrorCode.CATEGORY_NOT_FOUND,
                 "categoryID= " + categoryId
@@ -64,34 +98,26 @@ public class CategoryService {
             return null;
         }
 
-        return categoryRepository
-            .findById(parentId)
-            .orElseThrow(() -> new BusinessException(
-                ErrorCode.CATEGORY_NOT_FOUND,
-                "parentId=" + parentId
-            ));
+        return categoryRepository.findById(parentId).orElseThrow(() -> new BusinessException(
+            ErrorCode.CATEGORY_NOT_FOUND,
+            "parentId=" + parentId
+        ));
     }
 
-    private void validateDuplicate(CategoryRequest request, Category parent) {
-        boolean exists;
+    private void validateDuplicate(String name, TransactionType type, Long parentId, Long excludeCategoryId) {
 
-        if (parent == null) {
-            exists = categoryRepository.existsByNameAndTypeAndParentCategoryIsNull(
-                request.name(),
-                request.type()
-            );
-        } else {
-            exists = categoryRepository.existsByNameAndTypeAndParentCategoryId(
-                request.name(),
-                request.type(),
-                parent.getId()
-            );
-        }
+
+        boolean exists = categoryRepository.existsDuplicateName(
+            name,
+            type,
+            parentId,
+            excludeCategoryId
+        );
 
         if (exists) {
             throw new BusinessException(
                 ErrorCode.CATEGORY_ALREADY_EXISTS,
-                "name=" + request.name() + ", type=" + request.type()
+                "name=" + name + ", type=" + type
             );
         }
     }
