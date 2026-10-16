@@ -2,6 +2,7 @@ package com.njung.moneyflow.category.controller;
 
 import com.njung.moneyflow.category.dto.CategoryRequest;
 import com.njung.moneyflow.category.dto.CategoryResponse;
+import com.njung.moneyflow.category.dto.CategoryUpdateRequest;
 import com.njung.moneyflow.category.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,5 +20,10 @@ public class CategoryController {
     public CategoryResponse create(@Valid @RequestBody CategoryRequest request) {
         Long categoryId = categoryService.create(request);
         return new CategoryResponse(categoryId);
+    }
+
+    @PatchMapping("/{categoryId}")
+    public void update(@PathVariable Long categoryId, @RequestBody CategoryUpdateRequest request){
+        categoryService.update(categoryId, request);
     }
 }
