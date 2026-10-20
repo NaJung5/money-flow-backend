@@ -5,6 +5,8 @@ import com.njung.moneyflow.category.entity.CategoryType;
 import com.njung.moneyflow.fixture.CategoryFixture;
 import com.njung.moneyflow.fixture.MoneyFixture;
 import com.njung.moneyflow.fixture.TransactionFixture;
+import com.njung.moneyflow.global.exception.BusinessException;
+import com.njung.moneyflow.global.exception.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -75,7 +77,10 @@ class TransactionTest {
             category,
             "점심",
             "식당"
-        )).isInstanceOf(IllegalArgumentException.class);
+        ))
+            .isInstanceOf(BusinessException.class)
+            .extracting("errorCode")
+            .isEqualTo(ErrorCode.TRANSACTION_CATEGORY_TYPE_MISMATCH);
     }
 
     @Test
@@ -94,7 +99,10 @@ class TransactionTest {
             category,
             "점심",
             "식당"
-        )).isInstanceOf(IllegalArgumentException.class);
+        ))
+            .isInstanceOf(BusinessException.class)
+            .extracting("errorCode")
+            .isEqualTo(ErrorCode.INVALID_INPUT);
     }
 
     @Test
@@ -112,7 +120,10 @@ class TransactionTest {
             null,
             "a",
             "a"
-        )).isInstanceOf(IllegalArgumentException.class);
+        ))
+            .isInstanceOf(BusinessException.class)
+            .extracting("errorCode")
+            .isEqualTo(ErrorCode.INVALID_INPUT);
     }
 
     @Test
@@ -134,7 +145,10 @@ class TransactionTest {
             category,
             "수정테스트",
             null
-        )).isInstanceOf(IllegalStateException.class);
+        ))
+            .isInstanceOf(BusinessException.class)
+            .extracting("errorCode")
+            .isEqualTo(ErrorCode.TRANSACTION_DELETED);
     }
 
     @Test
@@ -161,7 +175,10 @@ class TransactionTest {
             category,
             "점심",
             "식당"
-        )).isInstanceOf(IllegalArgumentException.class);
+        ))
+            .isInstanceOf(BusinessException.class)
+            .extracting("errorCode")
+            .isEqualTo(ErrorCode.TRANSACTION_CATEGORY_TYPE_MISMATCH);
     }
 
     @Test
@@ -173,7 +190,10 @@ class TransactionTest {
         transaction.delete();
 
         // when & then
-        assertThatThrownBy(transaction::delete).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(transaction::delete)
+            .isInstanceOf(BusinessException.class)
+            .extracting("errorCode")
+            .isEqualTo(ErrorCode.TRANSACTION_DELETED);
     }
 
     @Test
@@ -196,6 +216,9 @@ class TransactionTest {
             category,
             "a",
             "a"
-        )).isInstanceOf(IllegalStateException.class);
+        ))
+            .isInstanceOf(BusinessException.class)
+            .extracting("errorCode")
+            .isEqualTo(ErrorCode.CATEGORY_INACTIVE);
     }
 }
