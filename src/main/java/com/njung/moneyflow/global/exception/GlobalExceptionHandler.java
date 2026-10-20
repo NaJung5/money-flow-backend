@@ -1,6 +1,5 @@
 package com.njung.moneyflow.global.exception;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -9,13 +8,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<ErrorResponse> handleCategoryNotFound(
+    public ResponseEntity<ErrorResponse> handleBusinessException(
         BusinessException exception
     ) {
-        ErrorResponse response = new ErrorResponse(exception.getMessage());
+        ErrorResponse response = new ErrorResponse(
+            exception.getMessage(),
+            exception.getErrorCode().getStatus().value()
+        );
 
         return ResponseEntity
-            .status(HttpStatus.NOT_FOUND)
+            .status(response.status())
             .body(response);
     }
 }

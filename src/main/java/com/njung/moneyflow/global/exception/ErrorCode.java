@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ErrorCode {
+    INVALID_INPUT(HttpStatus.BAD_REQUEST, "올바르지 못한 입력값 입니다."),
 
     CATEGORY_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 카테고리입니다."),
 
