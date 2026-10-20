@@ -118,7 +118,7 @@ class CategoryTest {
         // given
         Category category = CategoryFixture.createExpenseCategory("SampleCategory");
 
-        category.requestDelete();
+        category.delete();
 
         // when & then
         assertThatThrownBy(() -> new Category(

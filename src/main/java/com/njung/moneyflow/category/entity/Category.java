@@ -1,5 +1,7 @@
 package com.njung.moneyflow.category.entity;
 
+import com.njung.moneyflow.global.exception.BusinessException;
+import com.njung.moneyflow.global.exception.ErrorCode;
 import com.njung.moneyflow.transaction.entity.TransactionType;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -86,10 +88,6 @@ public class Category {
         this.updatedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
     }
 
-    public void delete() {
-        this.deletedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
-    }
-
     public void rename(String name) {
         validateName(name);
         validateModifiable();
@@ -113,13 +111,13 @@ public class Category {
         this.active = false;
     }
 
-    public void requestDelete() {
+    public void delete() {
         if (this.categoryType == CategoryType.SYSTEM) {
-            throw new IllegalStateException("기본 제공 카테고리는 삭제할 수 없습니다.");
+            throw new BusinessException(ErrorCode.CATEGORY_SYSTEM_DELETE_NOT_ALLOWED);
         }
 
         if (this.deletedAt != null) {
-            throw new IllegalStateException("이미 삭제된 카테고리입니다.");
+            throw new BusinessException(ErrorCode.CATEGORY_DELETED);
         }
 
         this.active = false;

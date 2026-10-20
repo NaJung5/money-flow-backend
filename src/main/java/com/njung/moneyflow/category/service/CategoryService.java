@@ -43,12 +43,7 @@ public class CategoryService {
 
     @Transactional
     public void update(Long categoryId, CategoryUpdateRequest request) {
-        Category category = categoryRepository.findById(categoryId)
-            .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
-
-        if (category.getDeletedAt() != null) {
-            throw new BusinessException(ErrorCode.CATEGORY_DELETED);
-        }
+        Category category = getCategory(categoryId);
 
         if (Objects.equals(category.getName(), request.name())) {
             return;
@@ -57,30 +52,17 @@ public class CategoryService {
         Category parent = category.getParentCategory();
         Long parentId = parent != null ? parent.getId() : null;
 
-        validateDuplicate(
-            request.name(),
-            category.getType(),
-            parentId,
-            categoryId
-        );
+        validateDuplicate(request.name(), category.getType(), parentId, categoryId);
 
         category.rename(request.name());
     }
 
     @Transactional
     public void delete(Long categoryId) {
-        Category category = categoryRepository.findById(categoryId)
-            .orElseThrow(() -> new BusinessException(
-                ErrorCode.CATEGORY_NOT_FOUND,
-                "categoryID= " + categoryId
-            ));
+        Category category = getCategory(categoryId);
 
         if (category.getCategoryType() == CategoryType.SYSTEM) {
             throw new BusinessException(ErrorCode.CATEGORY_SYSTEM_DELETE_NOT_ALLOWED);
-        }
-
-        if (category.getDeletedAt() != null) {
-            throw new BusinessException(ErrorCode.CATEGORY_DELETED);
         }
 
         boolean hasChildren = categoryRepository.existsByParentCategory_IdAndDeletedAtIsNull(
@@ -93,20 +75,23 @@ public class CategoryService {
         category.delete();
     }
 
+    private Category getCategory(Long categoryId) {
+        return categoryRepository.findByIdAndDeletedAtIsNull(categoryId)
+            .orElseThrow(() -> new BusinessException(
+                ErrorCode.CATEGORY_NOT_FOUND,
+                "categoryId=" + categoryId
+            ));
+    }
+
     private Category findParent(Long parentId) {
         if (parentId == null) {
             return null;
         }
 
-        return categoryRepository.findById(parentId).orElseThrow(() -> new BusinessException(
-            ErrorCode.CATEGORY_NOT_FOUND,
-            "parentId=" + parentId
-        ));
+        return getCategory(parentId);
     }
 
     private void validateDuplicate(String name, TransactionType type, Long parentId, Long excludeCategoryId) {
-
-
         boolean exists = categoryRepository.existsDuplicateName(
             name,
             type,

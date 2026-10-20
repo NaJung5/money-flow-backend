@@ -4,6 +4,7 @@ import com.njung.moneyflow.category.entity.Category;
 import com.njung.moneyflow.category.repository.CategoryRepository;
 import com.njung.moneyflow.fixture.CategoryFixture;
 import com.njung.moneyflow.global.exception.BusinessException;
+import com.njung.moneyflow.global.exception.ErrorCode;
 import com.njung.moneyflow.transaction.dto.TransactionRequest;
 import com.njung.moneyflow.transaction.entity.Transaction;
 import com.njung.moneyflow.transaction.entity.TransactionType;
@@ -73,7 +74,7 @@ class TransactionServiceTest {
             CategoryFixture.createExpenseCategory("ActiveCategory");
         categoryRepository.save(category);
 
-        category.requestDelete();
+        category.delete();
 
         TransactionRequest request = new TransactionRequest(
             TransactionType.EXPENSE,
@@ -87,12 +88,13 @@ class TransactionServiceTest {
         // when & then
         assertThatThrownBy(() -> transactionService.create(request))
             .isInstanceOf(BusinessException.class)
-            .hasMessage("이미 삭제된 카테고리입니다.");
+            .extracting("errorCode")
+            .isEqualTo(ErrorCode.CATEGORY_NOT_FOUND);
     }
 
     @Test
     @DisplayName("존재하지 않는 카테고리로 거래를 등록하면 실패한다")
-    void failWhenCategoryDoseNotExist() {
+    void failWhenCategoryDoesNotExist() {
         // given
         TransactionRequest request = new TransactionRequest(
             TransactionType.EXPENSE,
@@ -106,6 +108,7 @@ class TransactionServiceTest {
         // when & then
         assertThatThrownBy(() -> transactionService.create(request))
             .isInstanceOf(BusinessException.class)
-            .hasMessage("카테고리를 찾을 수 없습니다. categoryId=2139124");
+            .extracting("errorCode")
+            .isEqualTo(ErrorCode.CATEGORY_NOT_FOUND);
     }
 }

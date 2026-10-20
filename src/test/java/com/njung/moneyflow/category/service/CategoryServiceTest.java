@@ -150,7 +150,7 @@ class CategoryServiceTest {
     }
 
     @Test
-    @DisplayName("이미 삭제된 카테고리를 다시 삭제하면 예외가 발생한다")
+    @DisplayName("이미 삭제된 카테고리를 다시 삭제하면 카테고리를 찾을 수 없다는 예외가 발생한다")
     void failWhenDeletingAlreadyDeletedCategory() {
         // given
         Category category = CategoryFixture.createExpenseCategory("SampleCategory");
@@ -162,7 +162,7 @@ class CategoryServiceTest {
         assertThatThrownBy(() -> categoryService.delete(category.getId()))
             .isInstanceOf(BusinessException.class)
             .extracting("errorCode")
-            .isEqualTo(ErrorCode.CATEGORY_DELETED);
+            .isEqualTo(ErrorCode.CATEGORY_NOT_FOUND);
     }
 
     @Test
