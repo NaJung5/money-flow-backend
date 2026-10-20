@@ -47,7 +47,7 @@ class CategoryRepositoryTest {
         Category deletedCategory = CategoryFixture.createExpenseCategory("DeletedCategory");
 
         inactiveCategory.deactivate();
-        deletedCategory.requestDelete();
+        deletedCategory.delete();
 
         categoryRepository.saveAll(List.of(activeCategory, inactiveCategory, deletedCategory));
 
@@ -71,7 +71,7 @@ class CategoryRepositoryTest {
         Category deletedCategory = CategoryFixture.createExpenseCategory("DeletedCategory");
 
         inactiveCategory.deactivate();
-        deletedCategory.requestDelete();
+        deletedCategory.delete();
 
         categoryRepository.saveAll(List.of(activeCategory, inactiveCategory, deletedCategory));
 

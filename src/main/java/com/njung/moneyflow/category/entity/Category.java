@@ -1,5 +1,7 @@
 package com.njung.moneyflow.category.entity;
 
+import com.njung.moneyflow.global.exception.BusinessException;
+import com.njung.moneyflow.global.exception.ErrorCode;
 import com.njung.moneyflow.transaction.entity.TransactionType;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -55,11 +57,11 @@ public class Category {
         Category parentCategory
     ) {
         if (type == null) {
-            throw new IllegalArgumentException("거래 구분은 필수입니다.");
+            throw new BusinessException(ErrorCode.INVALID_INPUT, "type=null");
         }
 
         if (categoryType == null) {
-            throw new IllegalArgumentException("카테고리 구분은 필수입니다.");
+            throw new BusinessException(ErrorCode.INVALID_INPUT, "categoryType=null");
         }
 
         validateName(name);
@@ -86,10 +88,6 @@ public class Category {
         this.updatedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
     }
 
-    public void delete() {
-        this.deletedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
-    }
-
     public void rename(String name) {
         validateName(name);
         validateModifiable();
@@ -99,7 +97,7 @@ public class Category {
 
     public void activate() {
         if (this.deletedAt != null) {
-            throw new IllegalStateException("삭제된 카테고리는 활성화할 수 없습니다.");
+            throw new BusinessException(ErrorCode.CATEGORY_DELETED);
         }
 
         this.active = true;
@@ -107,19 +105,19 @@ public class Category {
 
     public void deactivate() {
         if (this.deletedAt != null) {
-            throw new IllegalStateException("삭제된 카테고리는 비활성화할 수 없습니다.");
+            throw new BusinessException(ErrorCode.CATEGORY_DELETED);
         }
 
         this.active = false;
     }
 
-    public void requestDelete() {
+    public void delete() {
         if (this.categoryType == CategoryType.SYSTEM) {
-            throw new IllegalStateException("기본 제공 카테고리는 삭제할 수 없습니다.");
+            throw new BusinessException(ErrorCode.CATEGORY_SYSTEM_DELETE_NOT_ALLOWED);
         }
 
         if (this.deletedAt != null) {
-            throw new IllegalStateException("이미 삭제된 카테고리입니다.");
+            throw new BusinessException(ErrorCode.CATEGORY_DELETED);
         }
 
         this.active = false;
@@ -128,7 +126,7 @@ public class Category {
 
     public void changeParentCategory(Category category) {
         if (this == category) {
-            throw new IllegalArgumentException("자기 자신을 부모 카테고리로 지정할 수 없습니다.");
+            throw new BusinessException(ErrorCode.CATEGORY_INVALID_HIERARCHY, "categoryId=" + this.id + ", parentCategoryId=" + category.id);
         }
 
         validateParentCategory(category, this.type);
@@ -140,11 +138,11 @@ public class Category {
 
     private void validateName(String name) {
         if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("카테고리명은 필수입니다.");
+            throw new BusinessException(ErrorCode.INVALID_INPUT, "name=" + name);
         }
 
         if (name.length() > 50) {
-            throw new IllegalArgumentException("카테고리명은 50자를 초과할 수 없습니다.");
+            throw new BusinessException(ErrorCode.INVALID_INPUT, "name.length=" + name.length());
         }
     }
 
@@ -157,31 +155,32 @@ public class Category {
         }
 
         if (parentCategory.deletedAt != null) {
-            throw new IllegalStateException("삭제된 카테고리는 부모 카테고리로 사용할 수 없습니다.");
+            throw new BusinessException(ErrorCode.CATEGORY_DELETED, "parentCategoryId=" + parentCategory.id);
         }
 
         if (!parentCategory.active) {
-            throw new IllegalStateException("비활성화된 카테고리에는 하위 카테고리를 추가할 수 없습니다.");
+            throw new BusinessException(ErrorCode.CATEGORY_INACTIVE, "parentCategoryId=" + parentCategory.id);
         }
 
         if (parentCategory.parentCategory != null) {
-            throw new IllegalStateException("카테고리는 최대 2단계까지만 생성할 수 있습니다.");
+            throw new BusinessException(ErrorCode.CATEGORY_INVALID_HIERARCHY, "parentCategoryId=" + parentCategory.id);
         }
 
         if (parentCategory.type != type) {
-            throw new IllegalArgumentException(
-                "부모와 자식 카테고리의 거래 구분이 일치하지 않습니다."
+            throw new BusinessException(
+                ErrorCode.CATEGORY_PARENT_TYPE_MISMATCH,
+                "parentType=" + parentCategory.type + ", type=" + type
             );
         }
     }
 
     private void validateModifiable() {
         if (this.categoryType == CategoryType.SYSTEM) {
-            throw new IllegalStateException("기본 제공 카테고리는 변경이 불가능합니다.");
+            throw new BusinessException(ErrorCode.CATEGORY_SYSTEM_MODIFY_NOT_ALLOWED);
         }
 
         if (this.deletedAt != null) {
-            throw new IllegalStateException("삭제된 카테고리는 수정할 수 없습니다.");
+            throw new BusinessException(ErrorCode.CATEGORY_DELETED);
         }
     }
 }

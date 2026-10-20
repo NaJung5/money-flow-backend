@@ -1,6 +1,8 @@
 package com.njung.moneyflow.category.entity;
 
 import com.njung.moneyflow.fixture.CategoryFixture;
+import com.njung.moneyflow.global.exception.BusinessException;
+import com.njung.moneyflow.global.exception.ErrorCode;
 import com.njung.moneyflow.transaction.entity.TransactionType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -76,8 +78,10 @@ class CategoryTest {
         Category category = CategoryFixture.createExpenseCategory("SampleCategory");
 
         // when & then
-        assertThatThrownBy(() -> category.changeParentCategory(category)).isInstanceOf(
-            IllegalArgumentException.class);
+        assertThatThrownBy(() -> category.changeParentCategory(category))
+            .isInstanceOf(BusinessException.class)
+            .extracting("errorCode")
+            .isEqualTo(ErrorCode.CATEGORY_INVALID_HIERARCHY);
     }
 
     @Test
@@ -92,7 +96,10 @@ class CategoryTest {
             TransactionType.INCOME,
             CategoryType.CUSTOM,
             parentCategory
-        )).isInstanceOf(IllegalArgumentException.class);
+        ))
+            .isInstanceOf(BusinessException.class)
+            .extracting("errorCode")
+            .isEqualTo(ErrorCode.CATEGORY_PARENT_TYPE_MISMATCH);
     }
 
     @Test
@@ -108,8 +115,9 @@ class CategoryTest {
             CategoryType.CUSTOM,
             childCategory
         ))
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessage("카테고리는 최대 2단계까지만 생성할 수 있습니다.");
+            .isInstanceOf(BusinessException.class)
+            .extracting("errorCode")
+            .isEqualTo(ErrorCode.CATEGORY_INVALID_HIERARCHY);
     }
 
     @Test
@@ -118,7 +126,7 @@ class CategoryTest {
         // given
         Category category = CategoryFixture.createExpenseCategory("SampleCategory");
 
-        category.requestDelete();
+        category.delete();
 
         // when & then
         assertThatThrownBy(() -> new Category(
@@ -126,7 +134,10 @@ class CategoryTest {
             TransactionType.EXPENSE,
             CategoryType.CUSTOM,
             category
-        )).isInstanceOf(IllegalStateException.class);
+        ))
+            .isInstanceOf(BusinessException.class)
+            .extracting("errorCode")
+            .isEqualTo(ErrorCode.CATEGORY_DELETED);
     }
 
     @Test
@@ -141,7 +152,10 @@ class CategoryTest {
         );
 
         // when & then
-        assertThatThrownBy(() -> category.rename("카테고리명 변경")).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> category.rename("카테고리명 변경"))
+            .isInstanceOf(BusinessException.class)
+            .extracting("errorCode")
+            .isEqualTo(ErrorCode.CATEGORY_SYSTEM_MODIFY_NOT_ALLOWED);
     }
 
     private Category createSampleChildCategory() {

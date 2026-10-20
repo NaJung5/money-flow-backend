@@ -22,7 +22,7 @@ public class TransactionService {
     @Transactional
     public Long create(TransactionRequest request) {
         Category category = categoryRepository
-            .findById(request.categoryId())
+            .findByIdAndDeletedAtIsNull(request.categoryId())
             .orElseThrow(() -> new BusinessException(
                 ErrorCode.CATEGORY_NOT_FOUND,
                 "categoryId=" + request.categoryId()

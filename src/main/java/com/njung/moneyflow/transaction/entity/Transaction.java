@@ -73,7 +73,7 @@ public class Transaction {
 
     public void delete() {
         if (this.deletedAt != null) {
-            throw new IllegalStateException("이미 삭제 된 거래입니다.");
+            throw new BusinessException(ErrorCode.TRANSACTION_DELETED);
         }
         this.deletedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
@@ -98,7 +98,7 @@ public class Transaction {
                        String memo,
                        String place) {
         if (this.deletedAt != null) {
-            throw new IllegalStateException("삭제된 거래는 수정이 불가능 합니다.");
+            throw new BusinessException(ErrorCode.TRANSACTION_DELETED);
         }
 
         validateMemo(memo);
@@ -116,29 +116,32 @@ public class Transaction {
 
     private void validateTypeMatch(TransactionType type, Category category) {
         if (type == null) {
-            throw new IllegalArgumentException("입출금 값은 필수입니다.");
+            throw new BusinessException(ErrorCode.INVALID_INPUT, "type=null");
         }
         if (type != category.getType()) {
-            throw new IllegalArgumentException("입출금 구분은 같아야 합니다.");
+            throw new BusinessException(
+                ErrorCode.TRANSACTION_CATEGORY_TYPE_MISMATCH,
+                "type=" + type + ", categoryType=" + category.getType()
+            );
         }
     }
 
     private void validateMemo(String memo) {
         if (memo != null && memo.length() > 50) {
-            throw new IllegalArgumentException("메모는 50자를 초과할 수 없습니다.");
+            throw new BusinessException(ErrorCode.INVALID_INPUT, "memo.length=" + memo.length());
         }
     }
 
     private void validatePlace(String place) {
         if (place != null && place.length() > 50) {
-            throw new IllegalArgumentException("장소는 50자를 초과할 수 없습니다.");
+            throw new BusinessException(ErrorCode.INVALID_INPUT, "place.length=" + place.length());
         }
     }
 
     private void validateCategory(Category category) {
 
         if (category == null) {
-            throw new IllegalArgumentException("카테고리는 필수입니다.");
+            throw new BusinessException(ErrorCode.INVALID_INPUT, "category=null");
         }
 
 
@@ -148,13 +151,13 @@ public class Transaction {
 
 
         if (!category.isActive()) {
-            throw new IllegalStateException("비활성화된 카테고리는 사용이 불가능 합니다.");
+            throw new BusinessException(ErrorCode.CATEGORY_INACTIVE, "categoryId=" + category.getId());
         }
     }
 
     private void validateAmount(Money amount) {
         if (amount == null) {
-            throw new IllegalArgumentException("금액은 필수 항목입니다.");
+            throw new BusinessException(ErrorCode.INVALID_INPUT, "amount=null");
         }
     }
 }
