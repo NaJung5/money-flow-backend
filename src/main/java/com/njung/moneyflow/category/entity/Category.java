@@ -111,13 +111,7 @@ public class Category {
     }
 
     public void delete() {
-        if (this.categoryType == CategoryType.SYSTEM) {
-            throw new BusinessException(ErrorCode.CATEGORY_SYSTEM_DELETE_NOT_ALLOWED);
-        }
-
-        if (this.deletedAt != null) {
-            throw new BusinessException(ErrorCode.CATEGORY_DELETED);
-        }
+        validateDeletable();
 
         this.active = false;
         this.deletedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
@@ -184,6 +178,16 @@ public class Category {
     private void validateModifiable() {
         if (this.categoryType == CategoryType.SYSTEM) {
             throw new BusinessException(ErrorCode.CATEGORY_SYSTEM_MODIFY_NOT_ALLOWED);
+        }
+
+        if (this.deletedAt != null) {
+            throw new BusinessException(ErrorCode.CATEGORY_DELETED);
+        }
+    }
+
+    public void validateDeletable() {
+        if (this.categoryType == CategoryType.SYSTEM) {
+            throw new BusinessException(ErrorCode.CATEGORY_SYSTEM_DELETE_NOT_ALLOWED);
         }
 
         if (this.deletedAt != null) {

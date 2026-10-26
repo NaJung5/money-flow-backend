@@ -158,6 +158,36 @@ class CategoryTest {
             .isEqualTo(ErrorCode.CATEGORY_SYSTEM_MODIFY_NOT_ALLOWED);
     }
 
+    @Test
+    @DisplayName("시스템 카테고리는 삭제할 수 없다")
+    void failWhenDeletingSystemCategory() {
+        // given
+        Category category = CategoryFixture.createSystemCategory("기본제공 카테고리");
+
+        // when & then
+        assertThatThrownBy(category::delete)
+            .isInstanceOf(BusinessException.class)
+            .extracting("errorCode")
+            .isEqualTo(ErrorCode.CATEGORY_SYSTEM_DELETE_NOT_ALLOWED);
+
+        assertThat(category.getDeletedAt()).isNull();
+    }
+
+    @Test
+    @DisplayName("이미 삭제된 카테고리는 다시 삭제할 수 없다")
+    void failWhenDeletingAlreadyDeletedCategory() {
+        // given
+        Category category = CategoryFixture.createExpenseCategory("SampleCategory");
+
+        category.delete();
+
+        // when & then
+        assertThatThrownBy(category::delete)
+            .isInstanceOf(BusinessException.class)
+            .extracting("errorCode")
+            .isEqualTo(ErrorCode.CATEGORY_DELETED);
+    }
+
     private Category createSampleChildCategory() {
         Category parentCategory = new Category(
             "부모 카테고리",
