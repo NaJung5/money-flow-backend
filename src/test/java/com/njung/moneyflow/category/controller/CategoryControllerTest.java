@@ -3,6 +3,8 @@ package com.njung.moneyflow.category.controller;
 import com.njung.moneyflow.category.dto.CategoryRequest;
 import com.njung.moneyflow.category.dto.CategoryUpdateRequest;
 import com.njung.moneyflow.category.service.CategoryService;
+import com.njung.moneyflow.global.exception.BusinessException;
+import com.njung.moneyflow.global.exception.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,9 +18,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -111,6 +112,65 @@ class CategoryControllerTest {
             .andExpect(jsonPath("$.fieldErrors[0].field").value("name"));
 
         verifyNoInteractions(categoryService);
+    }
+
+    @Test
+    @DisplayName("카테고리의 ID를 받아 삭제하면 204를 반환한다")
+    void deleteCategory() throws Exception {
+        // when & then
+        mockMvc
+            .perform(delete("/api/category/{categoryId}", 1L))
+            .andExpect(status().isNoContent());
+
+        verify(categoryService).delete(1L);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 카테고리를 삭제하면 404를 반환한다")
+    void failDeleteWhenCategoryDoesNotExist() throws Exception {
+        // given
+        doThrow(new BusinessException(ErrorCode.CATEGORY_NOT_FOUND, "categoryId=999"))
+            .when(categoryService).delete(999L);
+
+        // when & then
+        mockMvc
+            .perform(delete("/api/category/{categoryId}", 999L))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.message").value("카테고리를 찾을 수 없습니다. categoryId=999"));
+
+        verify(categoryService).delete(999L);
+    }
+
+    @Test
+    @DisplayName("시스템 카테고리를 삭제하면 403을 반환한다")
+    void failDeleteWhenSystemCategory() throws Exception {
+        // given
+        doThrow(new BusinessException(ErrorCode.CATEGORY_SYSTEM_DELETE_NOT_ALLOWED))
+            .when(categoryService).delete(1L);
+
+        // when & then
+        mockMvc
+            .perform(delete("/api/category/{categoryId}", 1L))
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath("$.message").value("시스템 카테고리는 삭제할 수 없습니다."));
+
+        verify(categoryService).delete(1L);
+    }
+
+    @Test
+    @DisplayName("하위 카테고리가 존재하는 카테고리를 삭제하면 409를 반환한다")
+    void failDeleteWhenCategoryHasChildren() throws Exception {
+        // given
+        doThrow(new BusinessException(ErrorCode.CATEGORY_HAS_CHILDREN))
+            .when(categoryService).delete(1L);
+
+        // when & then
+        mockMvc
+            .perform(delete("/api/category/{categoryId}", 1L))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.message").value("하위 카테고리가 존재하여 삭제할 수 없습니다."));
+
+        verify(categoryService).delete(1L);
     }
 
     private String updateRequestBody(String name) {
