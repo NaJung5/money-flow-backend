@@ -23,7 +23,7 @@ public class CategoryController {
     }
 
     @PatchMapping("/{categoryId}")
-    public void update(@PathVariable Long categoryId, @RequestBody CategoryUpdateRequest request){
+    public void update(@PathVariable Long categoryId, @Valid @RequestBody CategoryUpdateRequest request) {
         categoryService.update(categoryId, request);
     }
 }
