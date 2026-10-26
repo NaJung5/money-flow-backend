@@ -55,3 +55,5 @@ Java 25 / Spring Boot 4.1.1 / Gradle / Spring Data JPA / MariaDB / H2 (테스트
 
 - 개인 feature 브랜치에서 원격과 차이가 있으면 fetch 후 rebase 우선 (공유 브랜치는 rebase 금지)
 - 커밋 메시지: feat / fix / refactor / test / chore 접두사 + 한글 설명
+- 커밋은 사용자가 직접 한다. Claude는 커밋 분리와 메시지만 제안한다. (그 자리에서 명시적으로 요청한 경우에만 직접 커밋)
+- 커밋 메시지에 `Co-Authored-By` 등 Claude 관련 trailer를 넣지 않는다.

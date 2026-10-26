@@ -188,4 +188,27 @@ class CategoryServiceTest {
             .isEqualTo(ErrorCode.CATEGORY_HAS_CHILDREN);
     }
 
+    @Test
+    @DisplayName("하위 카테고리가 있는 SYSTEM 카테고리를 삭제하면 SYSTEM 삭제 불가 예외가 먼저 발생한다")
+    void failWithSystemErrorWhenDeletingSystemCategoryWithChildren() {
+        // given
+        Category parent = CategoryFixture.createSystemCategory("부모 카테고리");
+
+        categoryRepository.save(parent);
+
+        CategoryRequest request = new CategoryRequest(
+            "자식 카테고리",
+            TransactionType.EXPENSE,
+            parent.getId()
+        );
+
+        categoryService.create(request);
+
+        // when & then
+        assertThatThrownBy(() -> categoryService.delete(parent.getId()))
+            .isInstanceOf(BusinessException.class)
+            .extracting("errorCode")
+            .isEqualTo(ErrorCode.CATEGORY_SYSTEM_DELETE_NOT_ALLOWED);
+    }
+
 }

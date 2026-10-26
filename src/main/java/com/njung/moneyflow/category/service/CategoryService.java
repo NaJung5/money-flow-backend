@@ -61,9 +61,7 @@ public class CategoryService {
     public void delete(Long categoryId) {
         Category category = getCategory(categoryId);
 
-        if (category.getCategoryType() == CategoryType.SYSTEM) {
-            throw new BusinessException(ErrorCode.CATEGORY_SYSTEM_DELETE_NOT_ALLOWED);
-        }
+        category.validateDeletable();
 
         boolean hasChildren = categoryRepository.existsByParentCategory_IdAndDeletedAtIsNull(
             category.getId());

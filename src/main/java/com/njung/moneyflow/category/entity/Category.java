@@ -74,7 +74,6 @@ public class Category {
         this.active = true;
     }
 
-
     @PrePersist
     protected void onCreate() {
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
@@ -112,13 +111,7 @@ public class Category {
     }
 
     public void delete() {
-        if (this.categoryType == CategoryType.SYSTEM) {
-            throw new BusinessException(ErrorCode.CATEGORY_SYSTEM_DELETE_NOT_ALLOWED);
-        }
-
-        if (this.deletedAt != null) {
-            throw new BusinessException(ErrorCode.CATEGORY_DELETED);
-        }
+        validateDeletable();
 
         this.active = false;
         this.deletedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
@@ -126,7 +119,10 @@ public class Category {
 
     public void changeParentCategory(Category category) {
         if (this == category) {
-            throw new BusinessException(ErrorCode.CATEGORY_INVALID_HIERARCHY, "categoryId=" + this.id + ", parentCategoryId=" + category.id);
+            throw new BusinessException(
+                ErrorCode.CATEGORY_INVALID_HIERARCHY,
+                "categoryId=" + this.id + ", parentCategoryId=" + category.id
+            );
         }
 
         validateParentCategory(category, this.type);
@@ -134,7 +130,6 @@ public class Category {
 
         this.parentCategory = category;
     }
-
 
     private void validateName(String name) {
         if (name == null || name.isBlank()) {
@@ -146,24 +141,30 @@ public class Category {
         }
     }
 
-    private void validateParentCategory(
-        Category parentCategory,
-        TransactionType type
-    ) {
+    private void validateParentCategory(Category parentCategory, TransactionType type) {
         if (parentCategory == null) {
             return;
         }
 
         if (parentCategory.deletedAt != null) {
-            throw new BusinessException(ErrorCode.CATEGORY_DELETED, "parentCategoryId=" + parentCategory.id);
+            throw new BusinessException(
+                ErrorCode.CATEGORY_DELETED,
+                "parentCategoryId=" + parentCategory.id
+            );
         }
 
         if (!parentCategory.active) {
-            throw new BusinessException(ErrorCode.CATEGORY_INACTIVE, "parentCategoryId=" + parentCategory.id);
+            throw new BusinessException(
+                ErrorCode.CATEGORY_INACTIVE,
+                "parentCategoryId=" + parentCategory.id
+            );
         }
 
         if (parentCategory.parentCategory != null) {
-            throw new BusinessException(ErrorCode.CATEGORY_INVALID_HIERARCHY, "parentCategoryId=" + parentCategory.id);
+            throw new BusinessException(
+                ErrorCode.CATEGORY_INVALID_HIERARCHY,
+                "parentCategoryId=" + parentCategory.id
+            );
         }
 
         if (parentCategory.type != type) {
@@ -177,6 +178,16 @@ public class Category {
     private void validateModifiable() {
         if (this.categoryType == CategoryType.SYSTEM) {
             throw new BusinessException(ErrorCode.CATEGORY_SYSTEM_MODIFY_NOT_ALLOWED);
+        }
+
+        if (this.deletedAt != null) {
+            throw new BusinessException(ErrorCode.CATEGORY_DELETED);
+        }
+    }
+
+    public void validateDeletable() {
+        if (this.categoryType == CategoryType.SYSTEM) {
+            throw new BusinessException(ErrorCode.CATEGORY_SYSTEM_DELETE_NOT_ALLOWED);
         }
 
         if (this.deletedAt != null) {
