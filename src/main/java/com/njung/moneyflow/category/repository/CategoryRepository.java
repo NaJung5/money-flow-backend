@@ -9,10 +9,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
-    boolean existsByNameAndTypeAndParentCategoryIsNull(String name, TransactionType type);
-
-    boolean existsByNameAndTypeAndParentCategoryId(String name, TransactionType type, Long parentId);
-
     boolean existsByParentCategory_IdAndDeletedAtIsNull(Long parentCategoryId);
 
     Optional<Category> findByIdAndDeletedAtIsNull(Long id);
