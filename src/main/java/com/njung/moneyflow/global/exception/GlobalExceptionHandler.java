@@ -1,5 +1,6 @@
 package com.njung.moneyflow.global.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.List;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -15,6 +17,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBusinessException(
         BusinessException exception
     ) {
+        log.warn("[비즈니스 예외] {} - {}", exception.getErrorCode(), exception.getMessage());
+
         ErrorResponse response = ErrorResponse.of(
             exception.getErrorCode(),
             exception.getMessage()
@@ -46,7 +50,11 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException() {
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(
+        HttpMessageNotReadableException exception
+    ) {
+        log.warn("[요청 파싱 실패] {}", exception.getMessage());
+
         ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_INPUT);
 
         return ResponseEntity
