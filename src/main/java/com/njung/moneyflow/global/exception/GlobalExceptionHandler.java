@@ -1,6 +1,7 @@
 package com.njung.moneyflow.global.exception;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -38,6 +39,15 @@ public class GlobalExceptionHandler {
             .toList();
 
         ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_INPUT, fieldErrors);
+
+        return ResponseEntity
+            .status(response.status())
+            .body(response);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException() {
+        ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_INPUT);
 
         return ResponseEntity
             .status(response.status())

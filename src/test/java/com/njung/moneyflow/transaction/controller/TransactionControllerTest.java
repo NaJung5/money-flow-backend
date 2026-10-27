@@ -114,4 +114,57 @@ class TransactionControllerTest {
 
         verify(transactionService).create(any(TransactionRequest.class));
     }
+
+    @Test
+    @DisplayName("거래 구분에 정의되지 않은 값을 보내면 400을 반환하고 서비스를 호출하지 않는다")
+    void failWhenTypeIsInvalid() throws Exception {
+        // given
+        String requestBody = """
+            {
+              "type": "ABC",
+              "amount": 10000,
+              "transactionDate": "2026-09-17",
+              "categoryId": 1,
+              "memo": "거래등록 테스트",
+              "place": "부평"
+            }
+            """;
+
+        // when & then
+        mockMvc
+            .perform(post("/api/transactions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("올바르지 못한 입력값입니다."))
+            .andExpect(jsonPath("$.fieldErrors").isEmpty());
+
+        verifyNoInteractions(transactionService);
+    }
+
+    @Test
+    @DisplayName("JSON 형식이 올바르지 않으면 400을 반환하고 서비스를 호출하지 않는다")
+    void failWhenJsonIsMalformed() throws Exception {
+        // given
+        String requestBody = """
+            {
+              "type": "EXPENSE",
+              "amount": 10000,
+              "transactionDate": "2026-09-17",
+              "categoryId": 1,
+              "memo": "거래등록 테스트",
+              "place": "부평"
+            """;
+
+        // when & then
+        mockMvc
+            .perform(post("/api/transactions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("올바르지 못한 입력값입니다."))
+            .andExpect(jsonPath("$.fieldErrors").isEmpty());
+
+        verifyNoInteractions(transactionService);
+    }
 }
