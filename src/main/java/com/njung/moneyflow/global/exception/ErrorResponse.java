@@ -9,11 +9,7 @@ public record ErrorResponse(
 ) {
 
     public static ErrorResponse of(ErrorCode errorCode) {
-        return of(errorCode, errorCode.getMessage());
-    }
-
-    public static ErrorResponse of(ErrorCode errorCode, String message) {
-        return new ErrorResponse(message, errorCode.getStatus().value(), List.of());
+        return new ErrorResponse(errorCode.getMessage(), errorCode.getStatus().value(), List.of());
     }
 
     public static ErrorResponse of(ErrorCode errorCode, List<FieldErrorResponse> fieldErrors) {
