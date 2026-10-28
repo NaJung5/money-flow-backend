@@ -5,6 +5,7 @@ import com.njung.moneyflow.category.repository.CategoryRepository;
 import com.njung.moneyflow.global.exception.BusinessException;
 import com.njung.moneyflow.global.exception.ErrorCode;
 import com.njung.moneyflow.transaction.dto.TransactionRequest;
+import com.njung.moneyflow.transaction.dto.TransactionUpdateRequest;
 import com.njung.moneyflow.transaction.entity.Money;
 import com.njung.moneyflow.transaction.entity.Transaction;
 import com.njung.moneyflow.transaction.repository.TransactionRepository;
@@ -21,12 +22,7 @@ public class TransactionService {
 
     @Transactional
     public Long create(TransactionRequest request) {
-        Category category = categoryRepository
-            .findByIdAndDeletedAtIsNull(request.categoryId())
-            .orElseThrow(() -> new BusinessException(
-                ErrorCode.CATEGORY_NOT_FOUND,
-                "categoryId=" + request.categoryId()
-            ));
+        Category category = getCategory(request.categoryId());
 
         Money money = new Money(request.amount());
 
@@ -43,5 +39,39 @@ public class TransactionService {
             transactionRepository.save(transaction);
 
         return savedTransaction.getId();
+    }
+
+    @Transactional
+    public void update(Long transactionId, TransactionUpdateRequest request) {
+        Transaction transaction = getTransaction(transactionId);
+        Category category = getCategory(request.categoryId());
+
+        Money money = new Money(request.amount());
+
+        transaction.change(
+            money,
+            request.transactionDate(),
+            category,
+            request.memo(),
+            request.place()
+        );
+    }
+
+    private Transaction getTransaction(Long transactionId) {
+        return transactionRepository
+            .findByIdAndDeletedAtIsNull(transactionId)
+            .orElseThrow(() -> new BusinessException(
+                ErrorCode.TRANSACTION_NOT_FOUND,
+                "transactionId=" + transactionId
+            ));
+    }
+
+    private Category getCategory(Long categoryId) {
+        return categoryRepository
+            .findByIdAndDeletedAtIsNull(categoryId)
+            .orElseThrow(() -> new BusinessException(
+                ErrorCode.CATEGORY_NOT_FOUND,
+                "categoryId=" + categoryId
+            ));
     }
 }

@@ -25,6 +25,8 @@ public enum ErrorCode {
 
     CATEGORY_PARENT_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "부모 카테고리와 거래 구분이 일치하지 않습니다."),
 
+    TRANSACTION_NOT_FOUND(HttpStatus.NOT_FOUND, "거래를 찾을 수 없습니다."),
+
     TRANSACTION_DELETED(HttpStatus.CONFLICT, "이미 삭제된 거래입니다."),
 
     TRANSACTION_CATEGORY_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "거래 구분과 카테고리 구분이 일치하지 않습니다.");

@@ -181,6 +181,33 @@ class TransactionTest {
     }
 
     @Test
+    @DisplayName("거래일 없이 수정하면 기존 거래일이 유지됨")
+    void keepTransactionDateWhenChangingWithoutDate() {
+        // given
+        Category category = CategoryFixture.createExpenseCategory("SampleCategory");
+
+        LocalDate originalDate = LocalDate.now(ZoneId.of("Asia/Seoul")).minusDays(7);
+
+        Transaction transaction = new Transaction(
+            TransactionType.EXPENSE,
+            MoneyFixture.createMoney(),
+            originalDate,
+            category,
+            "점심",
+            "식당"
+        );
+
+        Money amount = new Money(500);
+
+        // when
+        transaction.change(amount, null, category, "점심", "식당");
+
+        // then
+        assertThat(transaction.getTransactionDate()).isEqualTo(originalDate);
+        assertThat(transaction.getAmount().getAmount()).isEqualTo(500);
+    }
+
+    @Test
     @DisplayName("이미 삭제된 거래를 다시 삭제하면 실패")
     void failWhenDeletingAlreadyDeletedTransaction() {
         // given
