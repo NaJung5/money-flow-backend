@@ -89,7 +89,12 @@ public class CategoryService {
         return getCategory(parentId);
     }
 
-    private void validateDuplicate(String name, TransactionType type, Long parentId, Long excludeCategoryId) {
+    private void validateDuplicate(
+        String name,
+        TransactionType type,
+        Long parentId,
+        Long excludeCategoryId
+    ) {
         boolean exists = categoryRepository.existsDuplicateName(
             name,
             type,
@@ -104,5 +109,4 @@ public class CategoryService {
             );
         }
     }
-
 }
