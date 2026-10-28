@@ -33,6 +33,10 @@ ij_java_method_call_chain_wrap = on_every_item
 ij_java_wrap_first_method_in_call_chain = true
 ij_java_align_multiline_chained_methods = false
 
+# import (일반 import는 개별, static import는 항상 와일드카드)
+ij_java_class_count_to_use_import_on_demand = 999
+ij_java_names_count_to_use_import_on_demand = 1
+
 # 삼항연산자 줄바꿈
 ij_java_ternary_operation_wrap = on_every_item
 ij_java_ternary_operation_signs_on_next_line = true
