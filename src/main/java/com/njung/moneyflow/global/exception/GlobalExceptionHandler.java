@@ -19,10 +19,7 @@ public class GlobalExceptionHandler {
     ) {
         log.warn("[비즈니스 예외] {} - {}", exception.getErrorCode(), exception.getMessage());
 
-        ErrorResponse response = ErrorResponse.of(
-            exception.getErrorCode(),
-            exception.getMessage()
-        );
+        ErrorResponse response = ErrorResponse.of(exception.getErrorCode());
 
         return ResponseEntity
             .status(response.status())
@@ -41,6 +38,11 @@ public class GlobalExceptionHandler {
                 fieldError.getDefaultMessage()
             ))
             .toList();
+
+        log.warn(
+            "[입력값 검증 실패] fields={}",
+            fieldErrors.stream().map(ErrorResponse.FieldErrorResponse::field).toList()
+        );
 
         ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_INPUT, fieldErrors);
 

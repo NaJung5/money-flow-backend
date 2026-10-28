@@ -126,7 +126,7 @@ class CategoryControllerTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 카테고리를 삭제하면 404를 반환한다")
+    @DisplayName("존재하지 않는 카테고리를 삭제하면 404와 상세 정보가 제외된 메시지를 반환한다")
     void failDeleteWhenCategoryDoesNotExist() throws Exception {
         // given
         doThrow(new BusinessException(ErrorCode.CATEGORY_NOT_FOUND, "categoryId=999"))
@@ -136,7 +136,7 @@ class CategoryControllerTest {
         mockMvc
             .perform(delete("/api/category/{categoryId}", 999L))
             .andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.message").value("카테고리를 찾을 수 없습니다. categoryId=999"));
+            .andExpect(jsonPath("$.message").value("카테고리를 찾을 수 없습니다."));
 
         verify(categoryService).delete(999L);
     }

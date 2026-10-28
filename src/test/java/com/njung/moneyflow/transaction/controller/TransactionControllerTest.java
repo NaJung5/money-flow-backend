@@ -84,7 +84,7 @@ class TransactionControllerTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 카테고리로 거래 등록 시 404를 반환한다")
+    @DisplayName("존재하지 않는 카테고리로 거래 등록 시 404와 상세 정보가 제외된 메시지를 반환한다")
     void failWhenCategoryDoesNotExist() throws Exception {
         // given
         when(transactionService.create(any(TransactionRequest.class))).thenThrow(new BusinessException(
@@ -109,7 +109,7 @@ class TransactionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
             .andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.message").value("카테고리를 찾을 수 없습니다. categoryId=999"))
+            .andExpect(jsonPath("$.message").value("카테고리를 찾을 수 없습니다."))
             .andExpect(jsonPath("$.fieldErrors").isEmpty());
 
         verify(transactionService).create(any(TransactionRequest.class));
