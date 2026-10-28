@@ -22,5 +22,4 @@ public class Money {
         }
         this.amount = amount;
     }
-
 }

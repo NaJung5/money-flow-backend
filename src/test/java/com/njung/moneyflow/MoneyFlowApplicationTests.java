@@ -9,5 +9,4 @@ class MoneyFlowApplicationTests {
     @Test
     void contextLoads() {
     }
-
 }

@@ -13,8 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -51,7 +50,6 @@ class CategoryServiceTest {
         assertThat(child.getType()).isEqualTo(TransactionType.EXPENSE);
         assertThat(child.getParentCategory().getId()).isEqualTo(parent.getId());
     }
-
 
     @Test
     @DisplayName("존재하지 않는 부모 카테고리를 지정하면 예외가 발생한다")
@@ -133,7 +131,6 @@ class CategoryServiceTest {
         assertThat(parent.getDeletedAt()).isNotNull();
     }
 
-
     @Test
     @DisplayName("SYSTEM 카테고리를 삭제하려고 하면 예외가 발생한다")
     void failWhenDeletingSystemCategory() {
@@ -210,5 +207,4 @@ class CategoryServiceTest {
             .extracting("errorCode")
             .isEqualTo(ErrorCode.CATEGORY_SYSTEM_DELETE_NOT_ALLOWED);
     }
-
 }

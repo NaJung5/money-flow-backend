@@ -3,7 +3,19 @@ package com.njung.moneyflow.transaction.entity;
 import com.njung.moneyflow.category.entity.Category;
 import com.njung.moneyflow.global.exception.BusinessException;
 import com.njung.moneyflow.global.exception.ErrorCode;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -49,26 +61,28 @@ public class Transaction {
 
     private LocalDateTime deletedAt;
 
-    public Transaction(TransactionType type,
-                       Money amount,
-                       LocalDate transactionDate,
-                       Category category,
-                       String memo,
-                       String place) {
+    public Transaction(
+        TransactionType type,
+        Money amount,
+        LocalDate transactionDate,
+        Category category,
+        String memo,
+        String place
+    ) {
         validateMemo(memo);
         validatePlace(place);
         validateCategory(category);
         validateTypeMatch(type, category);
         validateAmount(amount);
 
-
         this.type = type;
         this.amount = amount;
-        this.transactionDate = transactionDate == null ? LocalDate.now(ZoneId.of("Asia/Seoul")) : transactionDate;
+        this.transactionDate = transactionDate == null
+            ? LocalDate.now(ZoneId.of("Asia/Seoul"))
+            : transactionDate;
         this.category = category;
         this.memo = memo;
         this.place = place;
-
     }
 
     public void delete() {
@@ -76,7 +90,6 @@ public class Transaction {
             throw new BusinessException(ErrorCode.TRANSACTION_DELETED);
         }
         this.deletedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
-
     }
 
     @PrePersist
@@ -91,12 +104,13 @@ public class Transaction {
         updatedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
     }
 
-
-    public void change(Money amount,
-                       LocalDate transactionDate,
-                       Category category,
-                       String memo,
-                       String place) {
+    public void change(
+        Money amount,
+        LocalDate transactionDate,
+        Category category,
+        String memo,
+        String place
+    ) {
         if (this.deletedAt != null) {
             throw new BusinessException(ErrorCode.TRANSACTION_DELETED);
         }
@@ -144,14 +158,15 @@ public class Transaction {
             throw new BusinessException(ErrorCode.INVALID_INPUT, "category=null");
         }
 
-
         if (category.getDeletedAt() != null) {
             throw new BusinessException(ErrorCode.CATEGORY_DELETED);
         }
 
-
         if (!category.isActive()) {
-            throw new BusinessException(ErrorCode.CATEGORY_INACTIVE, "categoryId=" + category.getId());
+            throw new BusinessException(
+                ErrorCode.CATEGORY_INACTIVE,
+                "categoryId=" + category.getId()
+            );
         }
     }
 

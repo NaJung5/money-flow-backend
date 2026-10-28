@@ -13,7 +13,11 @@ public record ErrorResponse(
     }
 
     public static ErrorResponse of(ErrorCode errorCode, List<FieldErrorResponse> fieldErrors) {
-        return new ErrorResponse(errorCode.getMessage(), errorCode.getStatus().value(), fieldErrors);
+        return new ErrorResponse(
+            errorCode.getMessage(),
+            errorCode.getStatus().value(),
+            fieldErrors
+        );
     }
 
     public record FieldErrorResponse(
