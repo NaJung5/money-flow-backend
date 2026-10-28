@@ -333,10 +333,10 @@ macOS / Linux
 - [x] Category 생성 Service
 - [x] Category 생성 API
 - [x] Entity / Repository / Service / Controller 테스트
+- [x] Category 이름 수정 API
+- [x] Category 삭제 API (Soft Delete)
 - [ ] Category 조회 API
-- [ ] Category 수정 API
 - [ ] Category 활성 / 비활성 API
-- [ ] Category 삭제 API
 
 ### Transaction
 
