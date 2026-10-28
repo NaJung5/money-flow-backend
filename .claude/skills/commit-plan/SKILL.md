@@ -19,8 +19,9 @@ disable-model-invocation: true
 5. 아래 출력 형식으로 답한다.
 
 ## 커밋 메시지 규칙
-- 접두사: `feat` / `fix` / `refactor` / `test` / `chore`
+- 접두사: `feat` / `fix` / `refactor` / `test` / `chore` / `style` / `docs`
 - 형식: `접두사: 한글 설명` (한 줄)
+- 이슈 브랜치(`<접두사>/<이슈번호>-...`)에서 작업 중이면 끝에 이슈 번호를 붙인다: `feat: 거래 수정 서비스 구현 (#13)`
 - `Co-Authored-By` 같은 trailer는 붙이지 않는다.
 
 ## 출력 형식
