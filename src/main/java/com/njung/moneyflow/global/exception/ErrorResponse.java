@@ -8,6 +8,10 @@ public record ErrorResponse(
     List<FieldErrorResponse> fieldErrors
 ) {
 
+    public static ErrorResponse of(ErrorCode errorCode) {
+        return of(errorCode, errorCode.getMessage());
+    }
+
     public static ErrorResponse of(ErrorCode errorCode, String message) {
         return new ErrorResponse(message, errorCode.getStatus().value(), List.of());
     }

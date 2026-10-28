@@ -54,6 +54,24 @@ Java 25 / Spring Boot 4.1.1 / Gradle / Spring Data JPA / MariaDB / H2 (테스트
 ## Git
 
 - 개인 feature 브랜치에서 원격과 차이가 있으면 fetch 후 rebase 우선 (공유 브랜치는 rebase 금지)
-- 커밋 메시지: feat / fix / refactor / test / chore 접두사 + 한글 설명
+- 커밋 메시지: feat / fix / refactor / test / chore / style / docs 접두사 + 한글 설명
+    - 이슈 작업이면 끝에 이슈 번호를 붙인다: `feat: 거래 수정 서비스 구현 (#13)`
 - 커밋은 사용자가 직접 한다. Claude는 커밋 분리와 메시지만 제안한다. (그 자리에서 명시적으로 요청한 경우에만 직접 커밋)
 - 커밋 메시지에 `Co-Authored-By` 등 Claude 관련 trailer를 넣지 않는다.
+
+## 이슈와 PR
+
+- 작업 단위: GitHub Issue 1개 = 브랜치 1개 = PR 1개. 큰 기능은 Epic 이슈 아래 sub-issue로 나눈다.
+- 브랜치: 최신 main에서 `<접두사>/<이슈번호>-<영문-설명>` (예: `feat/13-transaction-update-service`). `#`은 쓰지 않는다.
+- PR 본문에 `closes #<이슈번호>`를 넣어 머지 시 이슈가 닫히게 한다. 머지 방식은 Merge commit.
+- 작업 보드: GitHub Projects `money-flow` (Todo / In Progress / Done)
+- PR, 이슈, 코멘트에 `Generated with Claude Code` 같은 홍보성 꼬리말을 넣지 않는다.
+- Claude가 PR에 남기는 리뷰는 셀프 리뷰로 오해되지 않도록 출처를 표기한다. (본문 첫 줄 `> AI 코드 리뷰 (Claude)`, 라인 코멘트 앞 `[AI 리뷰]`)
+- GitHub 작업은 `gh` CLI로 한다. PATH에 없으면 `"C:\Program Files\GitHub CLI\gh.exe"`
+
+## 프로젝트 스킬
+
+- `/review`: 커밋 전 변경사항 리뷰 (체크 항목의 기준)
+- `/test-cases`: 테스트 케이스 목록 추출
+- `/commit-plan`: 커밋 분리와 메시지 제안
+- `/pr-review`: PR 리뷰 후 GitHub에 게시
