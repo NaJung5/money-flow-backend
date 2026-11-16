@@ -103,7 +103,7 @@ class TransactionServiceTest {
             TransactionType.EXPENSE,
             10000,
             LocalDate.now(ZoneId.of("Asia/Seoul")),
-            2139124L,
+            Long.MAX_VALUE,
             "거래등록 테스트",
             "부평"
         );
@@ -121,7 +121,7 @@ class TransactionServiceTest {
     @DisplayName("거래 수정 성공 시 금액, 거래일, 카테고리, 메모, 장소가 반영된다")
     void updateTransaction() {
         // given
-        Category category = saveExpenseCategory("updateTestCategory");
+        Category category = saveExpenseCategory("originalCategory");
         Transaction transaction = saveTransaction(category);
 
         Category newCategory = saveExpenseCategory("newCategory");
@@ -150,7 +150,7 @@ class TransactionServiceTest {
     @DisplayName("존재하지 않는 거래를 수정하면 실패한다")
     void failWhenUpdatingNonExistentTransaction() {
         // given
-        Category category = saveExpenseCategory("updateTestCategory");
+        Category category = saveExpenseCategory("originalCategory");
         TransactionUpdateRequest request = updateRequest(category.getId());
 
         // when & then
@@ -164,9 +164,10 @@ class TransactionServiceTest {
     @DisplayName("삭제된 거래를 수정하면 실패한다")
     void failWhenUpdatingDeletedTransaction() {
         // given
-        Category category = saveExpenseCategory("updateTestCategory");
+        Category category = saveExpenseCategory("originalCategory");
         Transaction transaction = saveTransaction(category);
         transaction.delete();
+        entityManager.flush();
 
         TransactionUpdateRequest request = updateRequest(category.getId());
 
@@ -201,6 +202,7 @@ class TransactionServiceTest {
 
         Category deletedCategory = saveExpenseCategory("deletedCategory");
         deletedCategory.delete();
+        entityManager.flush();
 
         TransactionUpdateRequest request = updateRequest(deletedCategory.getId());
 
@@ -313,13 +315,13 @@ class TransactionServiceTest {
     }
 
     private Category saveExpenseCategory(String name) {
-        Category createCategory = CategoryFixture.createExpenseCategory(name);
-        return categoryRepository.save(createCategory);
+        Category category = CategoryFixture.createExpenseCategory(name);
+        return categoryRepository.save(category);
     }
 
     private Category saveIncomeCategory(String name) {
-        Category createCategory = CategoryFixture.createIncomeCategory(name);
-        return categoryRepository.save(createCategory);
+        Category category = CategoryFixture.createIncomeCategory(name);
+        return categoryRepository.save(category);
     }
 
     private Transaction saveTransaction(Category category) {
