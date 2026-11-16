@@ -247,4 +247,77 @@ class TransactionTest {
             .extracting("errorCode")
             .isEqualTo(ErrorCode.CATEGORY_INACTIVE);
     }
+
+    @Test
+    @DisplayName("비활성 카테고리로 수정하면 실패")
+    void failWhenChangingToInactiveCategory() {
+        // given
+        Transaction transaction = TransactionFixture.createTransaction();
+
+        Category inactiveCategory = CategoryFixture.createExpenseCategory("inactiveCategory");
+        inactiveCategory.deactivate();
+
+        Money amount = MoneyFixture.createMoney();
+
+        // when & then
+        assertThatThrownBy(() -> transaction.change(
+            amount,
+            null,
+            inactiveCategory,
+            "점심",
+            "식당"
+        ))
+            .isInstanceOf(BusinessException.class)
+            .extracting("errorCode")
+            .isEqualTo(ErrorCode.CATEGORY_INACTIVE);
+    }
+
+    @Test
+    @DisplayName("수정에 실패하면 기존 거래 정보가 유지됨")
+    void keepOriginalValuesWhenChangeFails() {
+        // given
+        Category originalCategory = CategoryFixture.createExpenseCategory("originalCategory");
+        Transaction transaction = TransactionFixture.createTransaction(originalCategory);
+
+        Money originalAmount = transaction.getAmount();
+        LocalDate originalDate = transaction.getTransactionDate();
+
+        Category incomeCategory = CategoryFixture.createIncomeCategory("incomeCategory");
+
+        // when
+        assertThatThrownBy(() -> transaction.change(
+            new Money(500),
+            originalDate.minusDays(1),
+            incomeCategory,
+            "수정메모",
+            "수정장소"
+        ))
+            .isInstanceOf(BusinessException.class)
+            .extracting("errorCode")
+            .isEqualTo(ErrorCode.TRANSACTION_CATEGORY_TYPE_MISMATCH);
+
+        // then
+        assertThat(transaction.getAmount()).isSameAs(originalAmount);
+        assertThat(transaction.getTransactionDate()).isEqualTo(originalDate);
+        assertThat(transaction.getCategory()).isSameAs(originalCategory);
+        assertThat(transaction.getMemo()).isEqualTo("점심");
+        assertThat(transaction.getPlace()).isEqualTo("식당");
+    }
+
+    @Test
+    @DisplayName("메모와 장소를 null로 수정하면 비워짐")
+    void clearMemoAndPlaceWhenChangingWithNull() {
+        // given
+        Category category = CategoryFixture.createExpenseCategory("SampleCategory");
+        Transaction transaction = TransactionFixture.createTransaction(category);
+
+        Money amount = MoneyFixture.createMoney();
+
+        // when
+        transaction.change(amount, null, category, null, null);
+
+        // then
+        assertThat(transaction.getMemo()).isNull();
+        assertThat(transaction.getPlace()).isNull();
+    }
 }

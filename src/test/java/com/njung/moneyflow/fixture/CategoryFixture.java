@@ -15,6 +15,15 @@ public class CategoryFixture {
         );
     }
 
+    public static Category createIncomeCategory(String categoryName) {
+        return new Category(
+            categoryName,
+            TransactionType.INCOME,
+            CategoryType.CUSTOM,
+            null
+        );
+    }
+
     public static Category createSystemCategory(String categoryName) {
         return new Category(
             categoryName,
